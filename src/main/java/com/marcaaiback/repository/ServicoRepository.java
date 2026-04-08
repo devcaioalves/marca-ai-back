@@ -11,10 +11,6 @@ public interface ServicoRepository extends JpaRepository<Servico, Long> {
 
     boolean existsByNomeIgnoreCase(String nome);
 
-    Servico findByNomeIgnoreCase(String nome);
-
-    boolean existsByNomeIgnoreCaseAndIdNot(String nome);
-
     List<Servico> findAllByOrderByNomeAsc();
 
     List<Servico> findByAtivoTrueOrderByNomeAsc();

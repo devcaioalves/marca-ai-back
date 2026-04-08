@@ -3,6 +3,7 @@ package com.marcaaiback.service;
 import com.marcaaiback.exception.OperacaoNaoPermitidaException;
 import com.marcaaiback.exception.RecursoNaoEncontradoException;
 import com.marcaaiback.model.entity.Servico;
+import com.marcaaiback.repository.AgendamentoRepository;
 import com.marcaaiback.repository.ServicoRepository;
 import com.marcaaiback.validator.ServicoValidator;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.List;
 public class ServicoService {
 
     private final ServicoRepository servicoRepository;
+    private final AgendamentoRepository agendamentoRepository;
     private final ServicoValidator servicoValidator;
 
     public Servico buscarServicoPorId(Long id) {
@@ -25,7 +27,6 @@ public class ServicoService {
     }
 
     public List<Servico> listarServicoPorNome(String nome){
-
         if(nome == null || nome.trim().isEmpty()){
             throw new OperacaoNaoPermitidaException("O nome é obrigatório.");
         }
@@ -79,8 +80,18 @@ public class ServicoService {
         return servicoRepository.save(servicoExistente);
     }
 
-    public void removerServico(Long id) {
+    public Servico removerServico(Long id) {
         Servico servicoExistente = buscarServicoPorId(id);
-        servicoRepository.deleteById(id);
+
+        if(!servicoExistente.isAtivo()){
+            throw new OperacaoNaoPermitidaException("Serviço já está inativo.");
+        }
+
+        boolean existeAgendamento = agendamentoRepository.existsByServico(servicoExistente);
+        if(existeAgendamento){
+            throw new OperacaoNaoPermitidaException("Não é possível inativar serviço com ageendamentos.");
+        }
+        servicoExistente.setAtivo(false);
+        return servicoRepository.save(servicoExistente);
     }
 }

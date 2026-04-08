@@ -20,13 +20,11 @@ public class HorarioDisponivel {
     private LocalDate data;
 
     @Column(nullable = false)
-    private LocalTime horaInicio;
+    private LocalTime horaInicioExpediente;
 
     @Column(nullable = false)
-    private LocalTime horaFim;
+    private LocalTime horaFimExpediente;
 
     @OneToMany(mappedBy = "horarioDisponivel",  fetch = FetchType.LAZY)
     private List<Agendamento> agendamentos;
-
-    private boolean disponivel;
 }
