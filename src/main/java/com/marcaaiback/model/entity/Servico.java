@@ -28,4 +28,6 @@ public class Servico {
 
     @OneToMany(mappedBy = "servico",  fetch = FetchType.LAZY)
     private List<Agendamento> agendamentos;
+
+    private boolean ativo;
 }

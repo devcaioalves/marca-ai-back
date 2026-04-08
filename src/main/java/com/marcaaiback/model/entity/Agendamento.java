@@ -4,6 +4,7 @@ import com.marcaaiback.model.enuns.StatusAgendamento;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
@@ -37,4 +38,7 @@ public class Agendamento {
     // CALCULADO PELO SISTEMA -> HORA_FIM = HORA_INICIO + DURACAO DO SERVIÇO
     @Column(nullable = false)
     private LocalTime horaFim;
+
+    @Column(nullable = false, name = "data_agendamento")
+    private LocalDate dataAgendamento;
 }
