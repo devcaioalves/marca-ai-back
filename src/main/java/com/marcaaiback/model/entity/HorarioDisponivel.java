@@ -24,10 +24,10 @@ public class HorarioDisponivel {
     private LocalDate data;
 
     @Column(nullable = false)
-    private LocalTime horaInicio;
+    private LocalTime horaInicioExpediente;
 
     @Column(nullable = false)
-    private LocalTime horaFim;
+    private LocalTime horaFimExpediente;
 
     @Column(nullable = false)
     private boolean disponivel;
