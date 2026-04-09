@@ -1,6 +1,6 @@
 package com.marcaaiback.exception;
 
-import com.marcaaiback.dto.error.ErrorDTO;
+import com.marcaaiback.model.dto.error.ErrorDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

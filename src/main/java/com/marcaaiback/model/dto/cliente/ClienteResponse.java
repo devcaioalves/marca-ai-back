@@ -1,6 +1,6 @@
-package com.marcaaiback.dto.cliente;
+package com.marcaaiback.model.dto.cliente;
 
-import com.marcaaiback.model.entity.Agendamento;
+import com.marcaaiback.model.dto.agendamento.AgendamentoResumoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +12,10 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClienteResponseDTO {
+public class ClienteResponse {
 
     private Long id;
     private String nome;
     private String telefone;
-    private List<Agendamento> agendamentos;
+    private List<AgendamentoResumoResponse> agendamentos;
 }

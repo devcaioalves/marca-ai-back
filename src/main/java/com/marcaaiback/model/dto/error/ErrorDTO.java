@@ -1,4 +1,4 @@
-package com.marcaaiback.dto.error;
+package com.marcaaiback.model.dto.error;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
