@@ -1,10 +1,18 @@
 package com.marcaaiback.model.enuns;
 
 public enum StatusAgendamento {
+    CONFIRMADO("Confirmado"),
+    CANCELADO("Cancelado"),
+    REMARCADO("Remarcado"),
+    REALIZADO("Realizado");
 
-    CONFIRMADO,
-    AGENDADO,
-    CANCELADO,
-    REMARCADO,
-    REALIZADO
+    private final String descricao;
+
+    StatusAgendamento(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
 }

@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "tb_cliente")
-public class Cliente {
+@Table(name = "tb_admin")
+public class Admin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,9 +21,15 @@ public class Cliente {
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(nullable = false, length = 20, unique = true)
+    @Column(nullable = false, length = 30)
     private String telefone;
 
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Column(nullable = false, length = 255, unique = true)
+    private String email;
+
+    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HorarioDisponivel> horariosDisponiveis;
+
+    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Agendamento> agendamentos;
 }

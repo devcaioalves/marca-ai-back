@@ -7,14 +7,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface HorarioDisponivelRepository extends JpaRepository<HorarioDisponivel, Long> {
 
-    List<HorarioDisponivel> findAllByData(LocalDate data);
+    // buscar horários disponíveis por data (cliente escolhe o dia)
+    List<HorarioDisponivel> findByDataAndDisponivel(LocalDate data, boolean disponivel);
 
-    boolean existsByData(LocalDate data);
+    // buscar todos horários de uma data independente de disponibilidade (painel admin)
+    List<HorarioDisponivel> findByData(LocalDate data);
 
+    // verificar conflito ao cadastrar novo horário
+    boolean existsByDataAndHoraInicio(LocalDate data, LocalTime horaInicio);
 }

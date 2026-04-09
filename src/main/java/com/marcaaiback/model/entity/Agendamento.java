@@ -2,13 +2,17 @@ package com.marcaaiback.model.entity;
 
 import com.marcaaiback.model.enuns.StatusAgendamento;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "tb_agendamento")
 public class Agendamento {
 
@@ -20,25 +24,28 @@ public class Agendamento {
     @Column(nullable = false)
     private StatusAgendamento statusAgendamento;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cliente")
-    private Cliente cliente;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_servico")
-    private Servico servico;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_horarioDisponivel")
-    private HorarioDisponivel horarioDisponivel;
+    @Column(nullable = false)
+    private LocalDate data;
 
     @Column(nullable = false)
     private LocalTime horaInicio;
 
-    // CALCULADO PELO SISTEMA -> HORA_FIM = HORA_INICIO + DURACAO DO SERVIÇO
     @Column(nullable = false)
-    private LocalTime horaFim;
+    private LocalTime horaFim; // persistido, calculado na camada de serviço no momento da criação
 
-    @Column(nullable = false, name = "data_agendamento")
-    private LocalDate dataAgendamento;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cliente", nullable = false)
+    private Cliente cliente;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_admin", nullable = false)
+    private Admin admin;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_servico", nullable = false)
+    private Servico servico;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_horario_disponivel", nullable = false)
+    private HorarioDisponivel horarioDisponivel;
 }

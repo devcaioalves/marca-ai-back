@@ -1,7 +1,9 @@
 package com.marcaaiback.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -9,6 +11,8 @@ import java.util.List;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "tb_horario_disponivel")
 public class HorarioDisponivel {
 
@@ -25,6 +29,13 @@ public class HorarioDisponivel {
     @Column(nullable = false)
     private LocalTime horaFimExpediente;
 
-    @OneToMany(mappedBy = "horarioDisponivel",  fetch = FetchType.LAZY)
+    @Column(nullable = false)
+    private boolean disponivel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_admin", nullable = false)
+    private Admin admin;
+
+    @OneToMany(mappedBy = "horarioDisponivel", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Agendamento> agendamentos;
 }
