@@ -1,19 +1,17 @@
 package com.marcaaiback.service;
 
-import com.marcaaiback.exception.OperacaoNaoPermitidaException;
-import com.marcaaiback.exception.RecursoDuplicadoException;
-import com.marcaaiback.exception.RecursoNaoEncontradoException;
+import com.marcaaiback.model.dto.agendamento.AgendamentoResumoResponse;
+import com.marcaaiback.model.dto.cliente.ClienteRequest;
+import com.marcaaiback.model.dto.cliente.ClienteResponse;
 import com.marcaaiback.model.entity.Cliente;
-import com.marcaaiback.model.entity.Servico;
 import com.marcaaiback.repository.ClienteRepository;
 import com.marcaaiback.validator.ClienteValidator;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,46 +20,80 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
     private final ClienteValidator clienteValidator;
 
-    public Cliente buscarClientePorId(Long id){
-        return clienteRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado."));
-    }
-
-    public Cliente buscarClientePorTelefone(String telefone){
-        String telefoneFormatado = clienteValidator.validarEPadronizarTelefone(telefone);
-        return clienteRepository.findByTelefone(telefoneFormatado);
-    }
-
-    public List<Cliente> listarClientePorNome(String nome){
-        if(nome == null || nome.trim().isEmpty()){
-            throw new OperacaoNaoPermitidaException("O nome é obrigatório.");
-        }
-        String nomeLimpo = nome.trim();
+    public ClienteResponse criar(ClienteRequest request) {
+        // valida e padroniza telefone
+        String telefonePadronizado = clienteValidator.validarEPadronizarTelefone(request.getTelefone());
+        // verifica duplicidade
+        clienteValidator.validarTelefoneDuplicado(telefonePadronizado);
 
         Cliente cliente = new Cliente();
-        cliente.setNome(nomeLimpo);
+        cliente.setNome(request.getNome());
+        cliente.setTelefone(telefonePadronizado);
 
-        ExampleMatcher matcher = ExampleMatcher
-                .matching()
-                .withIgnoreCase()
-                .withIgnoreNullValues()
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-        Example<Cliente> example = Example.of(cliente, matcher);
-
-        return clienteRepository.findAll(example);
+        return toResponse(clienteRepository.save(cliente));
     }
 
-    public List<Cliente> listarClientes(){
-        return clienteRepository.findAll();
+    public ClienteResponse buscarPorId(Long id) {
+        return toResponse(buscarEntidade(id));
     }
 
-    public Cliente salvarCliente(Cliente cliente){
-        String telefoneFormatado = clienteValidator.validarEPadronizarTelefone(cliente.getTelefone());
-        cliente.setTelefone(telefoneFormatado);
-        Cliente clienteExistente = buscarClientePorTelefone(telefoneFormatado);
-        if(clienteExistente != null){
-            return clienteExistente;
-        }
-        return clienteRepository.save(cliente);
+    public ClienteResponse buscarPorTelefone(String telefone) {
+        String telefonePadronizado = clienteValidator.validarEPadronizarTelefone(telefone);
+        Cliente cliente = clienteRepository.findByTelefone(telefonePadronizado)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado."));
+        return toResponse(cliente);
+    }
+
+    public List<ClienteResponse> listarTodos() {
+        return clienteRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public ClienteResponse atualizar(Long id, ClienteRequest request) {
+        Cliente cliente = buscarEntidade(id);
+
+        String telefonePadronizado = clienteValidator.validarEPadronizarTelefone(request.getTelefone());
+        clienteValidator.validarTelefoneDuplicadoNaAtualizacao(telefonePadronizado, cliente.getTelefone());
+
+        cliente.setNome(request.getNome());
+        cliente.setTelefone(telefonePadronizado);
+
+        return toResponse(clienteRepository.save(cliente));
+    }
+
+    public void deletar(Long id) {
+        Cliente cliente = buscarEntidade(id);
+        clienteRepository.delete(cliente);
+    }
+
+    // método interno reutilizável pelos outros services
+    public Cliente buscarEntidade(Long id) {
+        return clienteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado."));
+    }
+
+    private ClienteResponse toResponse(Cliente cliente) {
+        ClienteResponse response = new ClienteResponse();
+        response.setId(cliente.getId());
+        response.setNome(cliente.getNome());
+        response.setTelefone(cliente.getTelefone());
+
+        List<AgendamentoResumoResponse> agendamentos = cliente.getAgendamentos() == null
+                ? List.of()
+                : cliente.getAgendamentos().stream().map(a -> {
+            AgendamentoResumoResponse resumo = new AgendamentoResumoResponse();
+            resumo.setId(a.getId());
+            resumo.setData(a.getData());
+            resumo.setHoraInicio(a.getHoraInicio());
+            resumo.setHoraFim(a.getHoraFim());
+            resumo.setStatusAgendamento(a.getStatusAgendamento());
+            resumo.setServicoNome(a.getServico().getNome());
+            return resumo;
+        }).collect(Collectors.toList());
+
+        response.setAgendamentos(agendamentos);
+        return response;
     }
 }

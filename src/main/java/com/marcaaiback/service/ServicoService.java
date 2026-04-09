@@ -1,14 +1,12 @@
 package com.marcaaiback.service;
 
-import com.marcaaiback.exception.OperacaoNaoPermitidaException;
-import com.marcaaiback.exception.RecursoNaoEncontradoException;
+import com.marcaaiback.model.dto.servico.ServicoRequest;
+import com.marcaaiback.model.dto.servico.ServicoResponse;
 import com.marcaaiback.model.entity.Servico;
-import com.marcaaiback.repository.AgendamentoRepository;
 import com.marcaaiback.repository.ServicoRepository;
 import com.marcaaiback.validator.ServicoValidator;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,80 +16,70 @@ import java.util.List;
 public class ServicoService {
 
     private final ServicoRepository servicoRepository;
-    private final AgendamentoRepository agendamentoRepository;
     private final ServicoValidator servicoValidator;
 
-    public Servico buscarServicoPorId(Long id) {
-        return servicoRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Serviço não encontrado."));
-    }
+    public ServicoResponse criar(ServicoRequest request) {
 
-    public List<Servico> listarServicoPorNome(String nome){
-        if(nome == null || nome.trim().isEmpty()){
-            throw new OperacaoNaoPermitidaException("O nome é obrigatório.");
-        }
-        String nomeLimpo = nome.trim();
+        // validações centralizadas
+        servicoValidator.validarNome(request.getNome());
+        servicoValidator.validarValor(request.getValor());
+        servicoValidator.validarDuracao(request.getDuracao());
+        servicoValidator.validarDuplicidade(request.getNome());
 
         Servico servico = new Servico();
-        servico.setNome(nomeLimpo);
+        servico.setNome(request.getNome());
+        servico.setDescricao(request.getDescricao());
+        servico.setValor(request.getValor());
+        servico.setDuracao(request.getDuracao());
+        servico.setAtivo(true);
 
-        ExampleMatcher matcher = ExampleMatcher
-                .matching()
-                .withIgnoreCase()
-                .withIgnoreNullValues()
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-        Example<Servico> example = Example.of(servico, matcher);
-
-        return servicoRepository.findAll(example);
+        return toResponse(servicoRepository.save(servico));
     }
 
-    public List<Servico> listarTodosServicos(){
-        return servicoRepository.findAllByOrderByNomeAsc();
+    public ServicoResponse atualizar(Long id, ServicoRequest request) {
+
+        Servico servico = buscarEntidade(id);
+
+        // validações centralizadas
+        servicoValidator.validarNome(request.getNome());
+        servicoValidator.validarValor(request.getValor());
+        servicoValidator.validarDuracao(request.getDuracao());
+        servicoValidator.validarDuplicidadeNaAtualizacao(request.getNome(), id);
+
+        servico.setNome(request.getNome());
+        servico.setDescricao(request.getDescricao());
+        servico.setValor(request.getValor());
+        servico.setDuracao(request.getDuracao());
+
+        return toResponse(servicoRepository.save(servico));
     }
 
-    public List<Servico> listarServicosAtivos(){
-        return servicoRepository.findByAtivoTrueOrderByNomeAsc();
+    public void ativarDesativar(Long id) {
+        Servico servico = buscarEntidade(id);
+        servico.setAtivo(!servico.isAtivo());
+        servicoRepository.save(servico);
     }
 
-    public Servico cadastrarServico(Servico servico) {
-        servicoValidator.validarServicoParaCadastro(servico);
-        return servicoRepository.save(servico);
+    public void deletar(Long id) {
+        Servico servico = buscarEntidade(id);
+        servicoRepository.delete(servico);
     }
 
-    public Servico atualizarServico(Servico servico, Long id) {
-        Servico servicoExistente = buscarServicoPorId(id);
-        servicoValidator.validarServicoParaAtualizar(servico, servicoExistente.getId());
-
-        if(servico.getNome() != null){
-            servicoExistente.setNome(servico.getNome());
-        }
-
-        if(servico.getDescricao() != null){
-            servicoExistente.setDescricao(servico.getDescricao());
-        }
-
-        if(servico.getValor() != null){
-           servicoExistente.setValor(servico.getValor());
-        }
-
-        if(servico.getDuracao() != null){
-           servicoExistente.setDuracao(servico.getDuracao());
-        }
-        return servicoRepository.save(servicoExistente);
+    // método interno reutilizável pelos outros services
+    public Servico buscarEntidade(Long id) {
+        return servicoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Serviço não encontrado."));
     }
 
-    public Servico removerServico(Long id) {
-        Servico servicoExistente = buscarServicoPorId(id);
-
-        if(!servicoExistente.isAtivo()){
-            throw new OperacaoNaoPermitidaException("Serviço já está inativo.");
-        }
-
-        boolean existeAgendamento = agendamentoRepository.existsByServico(servicoExistente);
-        if(existeAgendamento){
-            throw new OperacaoNaoPermitidaException("Não é possível inativar serviço com ageendamentos.");
-        }
-        servicoExistente.setAtivo(false);
-        return servicoRepository.save(servicoExistente);
+    private ServicoResponse toResponse(Servico servico) {
+        ServicoResponse response = new ServicoResponse();
+        response.setId(servico.getId());
+        response.setNome(servico.getNome());
+        response.setDescricao(servico.getDescricao());
+        response.setValor(servico.getValor());
+        response.setDuracao(servico.getDuracao());
+        response.setAtivo(servico.isAtivo());
+        response.setAgendamentos(List.of()); // carregado separadamente se necessário
+        return response;
     }
 }
