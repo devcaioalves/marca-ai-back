@@ -1,6 +1,6 @@
-package com.marcaaiback.dto.servico;
+package com.marcaaiback.model.dto.servico;
 
-import com.marcaaiback.model.entity.Agendamento;
+import com.marcaaiback.model.dto.agendamento.AgendamentoResumoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,14 +13,13 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServicoResponseDTO {
+public class ServicoResponse {
 
     private Long id;
     private String nome;
     private String descricao;
     private BigDecimal valor;
-    private Double duracao;
-    private List<Agendamento> agendamentos;
+    private Integer duracao; // em minutos
     private boolean ativo;
-
+    private List<AgendamentoResumoResponse> agendamentos;
 }
