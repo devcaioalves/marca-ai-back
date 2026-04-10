@@ -10,7 +10,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +38,24 @@ public class HorarioDisponivelService {
         horario.setAdmin(admin);
 
         return toResponse(horarioDisponivelRepository.save(horario));
+    }
+
+    public HorarioDisponivelResponse buscarPorId(Long id) {
+        return toResponse(buscarEntidade(id));
+    }
+
+    public List<HorarioDisponivelResponse> listarPorData(LocalDate data) {
+        return horarioDisponivelRepository.findByData(data)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<HorarioDisponivelResponse> listarDisponiveisPorData(LocalDate data) {
+        return horarioDisponivelRepository.findByDataAndDisponivel(data, true)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     public void alterarDisponibilidade(Long id) {

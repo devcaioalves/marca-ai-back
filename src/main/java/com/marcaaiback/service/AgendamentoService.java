@@ -10,7 +10,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +53,31 @@ public class AgendamentoService {
         horarioDisponivelService.salvar(horario);
 
         return toResponse(agendamentoRepository.save(agendamento));
+    }
+
+    public AgendamentoResponse buscarPorId(Long id) {
+        return toResponse(buscarEntidade(id));
+    }
+
+    public List<AgendamentoResponse> listarPorData(LocalDate data) {
+        return agendamentoRepository.findByData(data)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<AgendamentoResponse> listarPorCliente(Long clienteId) {
+        return agendamentoRepository.findByClienteId(clienteId)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<AgendamentoResponse> listarPorStatus(StatusAgendamento status) {
+        return agendamentoRepository.findByStatusAgendamento(status)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     public AgendamentoResponse cancelar(Long id) {
