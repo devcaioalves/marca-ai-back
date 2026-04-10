@@ -16,7 +16,7 @@ public class NotificacaoValidator {
 
     private final NotificacaoRepository notificacaoRepository;
 
-    public void validarTipoMensagem(Object tipo) {
+    public void validarTipoMensagem(TipoDeMensagem tipo) {
         if (tipo == null) {
             throw new OperacaoNaoPermitidaException("O tipo da mensagem é obrigatório.");
         }

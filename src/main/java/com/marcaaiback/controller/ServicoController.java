@@ -17,39 +17,39 @@ public class ServicoController {
 
     private final ServicoService servicoService;
 
-    @PostMapping
+    @PostMapping("/criar-servico")
     public ResponseEntity<ServicoResponse> criar(@RequestBody @Valid ServicoRequest request) {
         return ResponseEntity.status(201).body(servicoService.criar(request));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-servico/{id}")
     public ResponseEntity<ServicoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(servicoService.buscarPorId(id));
     }
 
-    @GetMapping
+    @GetMapping("/listar-servicos")
     public ResponseEntity<List<ServicoResponse>> listarTodos() {
         return ResponseEntity.ok(servicoService.listarTodos());
     }
 
-    @GetMapping("/ativos")
+    @GetMapping("/listar-servicos/ativos")
     public ResponseEntity<List<ServicoResponse>> listarAtivos() {
         return ResponseEntity.ok(servicoService.listarAtivos());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/atualizar-servico/{id}")
     public ResponseEntity<ServicoResponse> atualizar(@PathVariable Long id,
                                                      @RequestBody @Valid ServicoRequest request) {
         return ResponseEntity.ok(servicoService.atualizar(id, request));
     }
 
-    @PatchMapping("/{id}/ativar-desativar")
+    @PatchMapping("/ativar-desativar-servico/{id}")
     public ResponseEntity<Void> ativarDesativar(@PathVariable Long id) {
         servicoService.ativarDesativar(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deletar-servico/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         servicoService.deletar(id);
         return ResponseEntity.noContent().build();

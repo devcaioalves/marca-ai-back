@@ -18,22 +18,22 @@ public class NotificacaoController {
 
     private final NotificacaoService notificacaoService;
 
-    @PostMapping
+    @PostMapping("/disparar-notificacao")
     public ResponseEntity<NotificacaoResponse> disparar(@RequestBody @Valid NotificacaoRequest request) {
         return ResponseEntity.status(201).body(notificacaoService.disparar(request));
     }
 
-    @GetMapping("/agendamento/{agendamentoId}")
+    @GetMapping("/listar-notificacao-agendamento/{agendamentoId}")
     public ResponseEntity<List<NotificacaoResponse>> listarPorAgendamento(@PathVariable Long agendamentoId) {
         return ResponseEntity.ok(notificacaoService.listarPorAgendamento(agendamentoId));
     }
 
-    @GetMapping("/status/{status}")
+    @GetMapping("/listar-notificacao-status/{status}")
     public ResponseEntity<List<NotificacaoResponse>> listarPorStatus(@PathVariable StatusNotificacao status) {
         return ResponseEntity.ok(notificacaoService.listarPorStatus(status));
     }
 
-    @PatchMapping("/{id}/lida")
+    @PatchMapping("/marcar-notificacao-lida/{id}")
     public ResponseEntity<Void> marcarComoLida(@PathVariable Long id) {
         notificacaoService.marcarComoLida(id);
         return ResponseEntity.noContent().build();
