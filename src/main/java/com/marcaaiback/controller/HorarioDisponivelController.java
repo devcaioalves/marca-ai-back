@@ -19,35 +19,35 @@ public class HorarioDisponivelController {
 
     private final HorarioDisponivelService horarioDisponivelService;
 
-    @PostMapping
+    @PostMapping("/criar-horario")
     public ResponseEntity<HorarioDisponivelResponse> criar(@RequestBody @Valid HorarioDisponivelRequest request) {
         return ResponseEntity.status(201).body(horarioDisponivelService.criar(request));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-horario/{id}")
     public ResponseEntity<HorarioDisponivelResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(horarioDisponivelService.buscarPorId(id));
     }
 
-    @GetMapping("/data/{data}")
+    @GetMapping("/listar-horario-data/{data}")
     public ResponseEntity<List<HorarioDisponivelResponse>> listarPorData(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
         return ResponseEntity.ok(horarioDisponivelService.listarPorData(data));
     }
 
-    @GetMapping("/data/{data}/disponiveis")
+    @GetMapping("/listar-horario-data/{data}/disponiveis")
     public ResponseEntity<List<HorarioDisponivelResponse>> listarDisponiveisPorData(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
         return ResponseEntity.ok(horarioDisponivelService.listarDisponiveisPorData(data));
     }
 
-    @PatchMapping("/{id}/disponibilidade")
+    @PatchMapping("/alterar-horario-disponibilidade/{id}")
     public ResponseEntity<Void> alterarDisponibilidade(@PathVariable Long id) {
         horarioDisponivelService.alterarDisponibilidade(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deletar-horario/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         horarioDisponivelService.deletar(id);
         return ResponseEntity.noContent().build();

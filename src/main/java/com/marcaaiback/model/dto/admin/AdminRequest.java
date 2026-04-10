@@ -30,4 +30,8 @@ public class AdminRequest {
     @NotBlank(message = "A senha é obrigatória.")
     @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres.")
     private String senha;
+
+    @NotBlank(message = "A confirmação de senha é obrigatória.")
+    @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres.")
+    private String confirmaSenha;
 }

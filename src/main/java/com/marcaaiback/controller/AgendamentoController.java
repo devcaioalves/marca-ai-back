@@ -20,38 +20,38 @@ public class AgendamentoController {
 
     private final AgendamentoService agendamentoService;
 
-    @PostMapping
+    @PostMapping("/criar-agendamento")
     public ResponseEntity<AgendamentoResponse> criar(@RequestBody @Valid AgendamentoRequest request) {
         return ResponseEntity.status(201).body(agendamentoService.criar(request));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-agendamento/{id}")
     public ResponseEntity<AgendamentoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(agendamentoService.buscarPorId(id));
     }
 
-    @GetMapping("/data/{data}")
+    @GetMapping("/listar-por-data/{data}")
     public ResponseEntity<List<AgendamentoResponse>> listarPorData(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
         return ResponseEntity.ok(agendamentoService.listarPorData(data));
     }
 
-    @GetMapping("/cliente/{clienteId}")
+    @GetMapping("/listar-por-cliente/{clienteId}")
     public ResponseEntity<List<AgendamentoResponse>> listarPorCliente(@PathVariable Long clienteId) {
         return ResponseEntity.ok(agendamentoService.listarPorCliente(clienteId));
     }
 
-    @GetMapping("/status/{status}")
+    @GetMapping("/listar-por-status/{status}")
     public ResponseEntity<List<AgendamentoResponse>> listarPorStatus(@PathVariable StatusAgendamento status) {
         return ResponseEntity.ok(agendamentoService.listarPorStatus(status));
     }
 
-    @PatchMapping("/{id}/cancelar")
+    @PatchMapping("/cancelar-agendamento/{id}")
     public ResponseEntity<AgendamentoResponse> cancelar(@PathVariable Long id) {
         return ResponseEntity.ok(agendamentoService.cancelar(id));
     }
 
-    @PatchMapping("/{id}/realizar")
+    @PatchMapping("/realizar-agendamento/{id}")
     public ResponseEntity<AgendamentoResponse> realizar(@PathVariable Long id) {
         return ResponseEntity.ok(agendamentoService.realizarAtendimento(id));
     }

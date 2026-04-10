@@ -17,17 +17,17 @@ public class MensagemController {
 
     private final MensagemService mensagemService;
 
-    @PostMapping
+    @PostMapping("/registrar-mensagem")
     public ResponseEntity<MensagemResponse> registrar(@RequestBody @Valid MensagemRequest request) {
         return ResponseEntity.status(201).body(mensagemService.registrar(request));
     }
 
-    @GetMapping("/agendamento/{agendamentoId}")
+    @GetMapping("/listar-mensagem-agendamento/{agendamentoId}")
     public ResponseEntity<List<MensagemResponse>> listarPorAgendamento(@PathVariable Long agendamentoId) {
         return ResponseEntity.ok(mensagemService.listarPorAgendamento(agendamentoId));
     }
 
-    @GetMapping("/cliente/{clienteId}")
+    @GetMapping("/listar-mensagem-cliente/{clienteId}")
     public ResponseEntity<List<MensagemResponse>> listarPorCliente(@PathVariable Long clienteId) {
         return ResponseEntity.ok(mensagemService.listarPorCliente(clienteId));
     }
