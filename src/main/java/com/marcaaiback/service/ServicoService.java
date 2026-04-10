@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,24 @@ public class ServicoService {
         servico.setAtivo(true);
 
         return toResponse(servicoRepository.save(servico));
+    }
+
+    public ServicoResponse buscarPorId(Long id) {
+        return toResponse(buscarEntidade(id));
+    }
+
+    public List<ServicoResponse> listarTodos() {
+        return servicoRepository.findAllByOrderByNomeAsc()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ServicoResponse> listarAtivos() {
+        return servicoRepository.findByAtivoTrueOrderByNomeAsc()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     public ServicoResponse atualizar(Long id, ServicoRequest request) {

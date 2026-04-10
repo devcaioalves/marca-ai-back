@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,20 @@ public class NotificacaoService {
         notificacao.setAgendamento(agendamento);
 
         return toResponse(notificacaoRepository.save(notificacao));
+    }
+
+    public List<NotificacaoResponse> listarPorAgendamento(Long agendamentoId) {
+        return notificacaoRepository.findByAgendamentoId(agendamentoId)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<NotificacaoResponse> listarPorStatus(StatusNotificacao status) {
+        return notificacaoRepository.findByStatusNotificacao(status)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     public void marcarComoLida(Long id) {
