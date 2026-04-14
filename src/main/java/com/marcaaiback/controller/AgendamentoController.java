@@ -46,6 +46,16 @@ public class AgendamentoController {
         return ResponseEntity.ok(agendamentoService.listarPorStatus(status));
     }
 
+    @PatchMapping("/remarcar-agendamento/{id}/{novoHorarioId}")
+    public ResponseEntity<AgendamentoResponse> remarcar(@PathVariable Long id, @PathVariable Long novoHorarioId) {
+        return ResponseEntity.ok(agendamentoService.remarcar(id, novoHorarioId));
+    }
+
+    @PatchMapping("/confirmar-agendamento/{id}")
+    public ResponseEntity<AgendamentoResponse> confirmar(@PathVariable Long id) {
+        return ResponseEntity.ok(agendamentoService.confirmar(id));
+    }
+
     @PatchMapping("/cancelar-agendamento/{id}")
     public ResponseEntity<AgendamentoResponse> cancelar(@PathVariable Long id) {
         return ResponseEntity.ok(agendamentoService.cancelar(id));

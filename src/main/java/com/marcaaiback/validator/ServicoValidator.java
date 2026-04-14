@@ -1,6 +1,7 @@
 package com.marcaaiback.validator;
 
 import com.marcaaiback.exception.OperacaoNaoPermitidaException;
+import com.marcaaiback.exception.RecursoDuplicadoException;
 import com.marcaaiback.repository.ServicoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -35,13 +36,13 @@ public class ServicoValidator {
 
     public void validarDuplicidade(String nome) {
         if (servicoRepository.existsByNomeIgnoreCase(nome)) {
-            throw new OperacaoNaoPermitidaException("Já existe um serviço com esse nome.");
+            throw new RecursoDuplicadoException("Já existe um serviço com esse nome.");
         }
     }
 
     public void validarDuplicidadeNaAtualizacao(String nome, Long id) {
         if (servicoRepository.existsByNomeIgnoreCaseAndIdNot(nome, id)) {
-            throw new OperacaoNaoPermitidaException("Já existe um serviço com esse nome.");
+            throw new RecursoDuplicadoException("Já existe um serviço com esse nome.");
         }
     }
 }

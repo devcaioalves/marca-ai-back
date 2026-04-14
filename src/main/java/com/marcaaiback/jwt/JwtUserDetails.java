@@ -1,6 +1,5 @@
 package com.marcaaiback.jwt;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import java.io.Serial;

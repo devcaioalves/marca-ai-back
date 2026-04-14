@@ -1,6 +1,6 @@
 package com.marcaaiback.service;
 
-import com.marcaaiback.exception.OperacaoNaoPermitidaException;
+import com.marcaaiback.exception.RecursoDuplicadoException;
 import com.marcaaiback.jwt.JwtToken;
 import com.marcaaiback.jwt.JwtUtils;
 import com.marcaaiback.model.dto.admin.AdminRequest;
@@ -31,7 +31,7 @@ public class AdminService {
 
     public AdminResponse criarAdmin(AdminRequest request) {
         if (!adminRepository.findAll().isEmpty()) {
-            throw new OperacaoNaoPermitidaException("Já existe um administrador cadastrado.");
+            throw new RecursoDuplicadoException("Já existe um administrador cadastrado.");
         }
         validarSenha(request.getSenha(), request.getConfirmaSenha());
 

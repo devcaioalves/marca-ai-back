@@ -27,6 +27,10 @@ public class HorarioDisponivelService {
         // validações centralizadas
         horarioValidator.validarDuplicidade(request.getData(), request.getHoraInicio());
         horarioValidator.validarIntervalo(request.getHoraInicio(), request.getHoraFim());
+        horarioValidator.validarHorarioPassado(request.getData(), request.getHoraInicio());
+        horarioValidator.validarAntecedencia(request.getData());
+        horarioValidator.validarConflitoHorario(request.getData(), request.getHoraInicio(), request.getHoraFim());
+
 
         Admin admin = adminService.buscarEntidade();
 
@@ -58,17 +62,28 @@ public class HorarioDisponivelService {
                 .collect(Collectors.toList());
     }
 
-    public void alterarDisponibilidade(Long id) {
+    public HorarioDisponivelResponse alterarDisponibilidade(Long id, HorarioDisponivelRequest request) {
         HorarioDisponivel horario = buscarEntidade(id);
 
-        horario.setDisponivel(!horario.isDisponivel());
+        // validações centralizadas
+        horarioValidator.validarAtualizacao(horario);
+        horarioValidator.validarDuplicidadeAtualizacao(id, request.getData(), request.getHoraInicio());
+        horarioValidator.validarIntervalo(request.getHoraInicio(), request.getHoraFim());
+        horarioValidator.validarHorarioPassado(request.getData(), request.getHoraInicio());
+        horarioValidator.validarAntecedencia(request.getData());
+        horarioValidator.validarConflitoAtualizacao(id, request.getData(), request.getHoraInicio(), request.getHoraFim());
 
-        horarioDisponivelRepository.save(horario);
+        horario.setData(request.getData());
+        horario.setHoraInicio(request.getHoraInicio());
+        horario.setHoraFim(request.getHoraFim());
+
+        return toResponse(horarioDisponivelRepository.save(horario));
     }
 
-    public HorarioDisponivel salvar(HorarioDisponivel horario) {
-        return horarioDisponivelRepository.save(horario);
+    public HorarioDisponivel salvar(HorarioDisponivel horario){
+        return  horarioDisponivelRepository.save(horario);
     }
+
 
     public void deletar(Long id) {
         HorarioDisponivel horario = buscarEntidade(id);

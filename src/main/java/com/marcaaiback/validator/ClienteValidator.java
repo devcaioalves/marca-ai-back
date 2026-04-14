@@ -1,6 +1,7 @@
 package com.marcaaiback.validator;
 
 import com.marcaaiback.exception.OperacaoNaoPermitidaException;
+import com.marcaaiback.exception.RecursoDuplicadoException;
 import com.marcaaiback.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -38,13 +39,13 @@ public class ClienteValidator {
 
     public void validarTelefoneDuplicado(String telefone) {
         if (clienteRepository.existsByTelefone(telefone)) {
-            throw new OperacaoNaoPermitidaException("Já existe um cliente cadastrado com esse telefone.");
+            throw new RecursoDuplicadoException("Já existe um cliente cadastrado com esse telefone.");
         }
     }
 
     public void validarTelefoneDuplicadoNaAtualizacao(String telefoneNovo, String telefoneAtual) {
         if (!telefoneAtual.equals(telefoneNovo) && clienteRepository.existsByTelefone(telefoneNovo)) {
-            throw new OperacaoNaoPermitidaException("Já existe um cliente cadastrado com esse telefone.");
+            throw new RecursoDuplicadoException("Já existe um cliente cadastrado com esse telefone.");
         }
     }
 }

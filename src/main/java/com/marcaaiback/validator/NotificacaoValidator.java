@@ -1,6 +1,7 @@
 package com.marcaaiback.validator;
 
 import com.marcaaiback.exception.OperacaoNaoPermitidaException;
+import com.marcaaiback.exception.RecursoDuplicadoException;
 import com.marcaaiback.model.entity.Agendamento;
 import com.marcaaiback.model.entity.Notificacao;
 import com.marcaaiback.model.enuns.StatusAgendamento;
@@ -35,7 +36,7 @@ public class NotificacaoValidator {
                 .existsByAgendamentoIdAndTipoDeMensagem(agendamentoId, tipoMensagem);
 
         if (existe) {
-            throw new OperacaoNaoPermitidaException(
+            throw new RecursoDuplicadoException(
                     "Já foi enviada uma notificação desse tipo para este agendamento."
             );
         }

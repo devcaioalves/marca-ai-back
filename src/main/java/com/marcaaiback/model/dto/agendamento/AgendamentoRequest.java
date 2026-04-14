@@ -6,11 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class AgendamentoRequest {
+
+    @NotNull(message = "O agendamento deve conter a hora início.")
+    private LocalTime horaInicio;
 
     @NotNull(message = "O agendamento deve conter um cliente.")
     private Long clienteId;

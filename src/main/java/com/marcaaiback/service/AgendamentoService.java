@@ -33,11 +33,14 @@ public class AgendamentoService {
         HorarioDisponivel horario = horarioDisponivelService.buscarEntidade(request.getHorarioDisponivelId());
         Admin admin = adminService.buscarEntidade();
 
-        // validações centralizadas
-        agendamentoValidator.validarHorarioDisponivel(horario);
-
-        LocalTime horaFim = horario.getHoraInicio()
+        LocalTime horaInicio = request.getHoraInicio();
+        LocalTime horaFim = horaInicio
                 .plusMinutes(servico.getDuracao());
+
+        // validações centralizadas
+        agendamentoValidator.validarHorarioDentroDoIntervalo(horario, horaInicio, horaFim);
+        agendamentoValidator.validarConflito(horario.getData(), horaInicio, horaFim);
+        agendamentoValidator.validarAntecedenciaMinima(horario.getData(), horaInicio);
 
         Agendamento agendamento = new Agendamento();
         agendamento.setCliente(cliente);
@@ -45,11 +48,10 @@ public class AgendamentoService {
         agendamento.setHorarioDisponivel(horario);
         agendamento.setAdmin(admin);
         agendamento.setData(horario.getData());
-        agendamento.setHoraInicio(horario.getHoraInicio());
+        agendamento.setHoraInicio(horaInicio);
         agendamento.setHoraFim(horaFim);
-        agendamento.setStatusAgendamento(StatusAgendamento.CONFIRMADO);
+        agendamento.setStatusAgendamento(StatusAgendamento.AGENDADO);
 
-        horario.setDisponivel(false);
         horarioDisponivelService.salvar(horario);
 
         return toResponse(agendamentoRepository.save(agendamento));
@@ -80,25 +82,50 @@ public class AgendamentoService {
                 .collect(Collectors.toList());
     }
 
+    public AgendamentoResponse remarcar(Long id, Long novoHorarioId) {
+        Agendamento agendamento = buscarEntidade(id);
+        agendamentoValidator.validarRemarcacao(agendamento);
+
+        HorarioDisponivel novoHorario = horarioDisponivelService.buscarEntidade(id);
+
+        Servico servico = agendamento.getServico();
+
+        LocalTime novaHoraInicio = novoHorario.getHoraInicio();
+        LocalTime novaHoraFim = novaHoraInicio.plusMinutes(servico.getDuracao());
+
+        agendamentoValidator.validarHorarioDentroDoIntervalo(novoHorario, novaHoraInicio, novaHoraFim);
+        agendamentoValidator.validarConflito(novoHorario.getData(), novaHoraInicio, novaHoraFim);
+        agendamentoValidator.validarAntecedenciaMinima(novoHorario.getData(), novaHoraInicio);
+
+        agendamento.setHorarioDisponivel(novoHorario);
+        agendamento.setData(novoHorario.getData());
+        agendamento.setHoraInicio(novaHoraInicio);
+        agendamento.setHoraFim(novaHoraFim);
+        agendamento.setStatusAgendamento(StatusAgendamento.REMARCADO);
+
+        return toResponse(agendamentoRepository.save(agendamento));
+    }
+
+    public AgendamentoResponse confirmar(Long id){
+        Agendamento agendamento = buscarEntidade(id);
+        agendamentoValidator.validarConfirmacao(agendamento);
+        agendamento.setStatusAgendamento(StatusAgendamento.CONFIRMADO);
+
+        return toResponse(agendamentoRepository.save(agendamento));
+    }
+
+
     public AgendamentoResponse cancelar(Long id) {
         Agendamento agendamento = buscarEntidade(id);
-
         agendamentoValidator.validarCancelamento(agendamento);
-
         agendamento.setStatusAgendamento(StatusAgendamento.CANCELADO);
-
-        HorarioDisponivel horario = agendamento.getHorarioDisponivel();
-        horario.setDisponivel(true);
-        horarioDisponivelService.salvar(horario);
 
         return toResponse(agendamentoRepository.save(agendamento));
     }
 
     public AgendamentoResponse realizarAtendimento(Long id) {
         Agendamento agendamento = buscarEntidade(id);
-
         agendamentoValidator.validarRealizacao(agendamento);
-
         agendamento.setStatusAgendamento(StatusAgendamento.REALIZADO);
 
         return toResponse(agendamentoRepository.save(agendamento));

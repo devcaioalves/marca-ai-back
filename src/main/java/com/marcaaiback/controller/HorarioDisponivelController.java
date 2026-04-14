@@ -42,9 +42,10 @@ public class HorarioDisponivelController {
     }
 
     @PatchMapping("/alterar-horario-disponibilidade/{id}")
-    public ResponseEntity<Void> alterarDisponibilidade(@PathVariable Long id) {
-        horarioDisponivelService.alterarDisponibilidade(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<HorarioDisponivelResponse> alterarDisponibilidade(@PathVariable Long id,
+                                                       @RequestBody @Valid HorarioDisponivelRequest request) {
+
+        return ResponseEntity.ok(horarioDisponivelService.alterarDisponibilidade(id, request));
     }
 
     @DeleteMapping("/deletar-horario/{id}")

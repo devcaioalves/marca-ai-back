@@ -22,4 +22,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
 
     // verificar conflito de horário no mesmo horario disponivel
     boolean existsByHorarioDisponivelId(Long horarioDisponivelId);
+
+    // buscar agendamentos de uma data específica
+    List<Agendamento> findAllByData(LocalDate data);
 }
