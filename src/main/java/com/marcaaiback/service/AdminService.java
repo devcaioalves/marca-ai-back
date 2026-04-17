@@ -1,13 +1,16 @@
 package com.marcaaiback.service;
 
+import com.marcaaiback.exception.EntidadeNaoEncontradaException;
+import com.marcaaiback.exception.NaoAutorizadoException;
 import com.marcaaiback.exception.RecursoDuplicadoException;
 import com.marcaaiback.jwt.JwtToken;
 import com.marcaaiback.jwt.JwtUtils;
-import com.marcaaiback.model.dto.admin.AdminRequest;
-import com.marcaaiback.model.dto.admin.AdminResponse;
+import com.marcaaiback.model.dto.admin.*;
 import com.marcaaiback.model.dto.admin.login.LoginRequest;
 import com.marcaaiback.model.dto.admin.senha.AlterarSenhaRequest;
+import com.marcaaiback.model.dto.viacep.ViaCEPResponse;
 import com.marcaaiback.model.entity.Admin;
+import com.marcaaiback.model.entity.Endereco;
 import com.marcaaiback.model.entity.SenhaResetToken;
 import com.marcaaiback.repository.AdminRepository;
 import com.marcaaiback.repository.SenhaResetTokenRepository;
@@ -28,6 +31,7 @@ public class AdminService {
     private final SenhaResetTokenRepository tokenRepository;
     private final EmailService emailService;
     private final JwtUtils jwtUtils; // injetado como componente
+    private final ViaCEPService viaCEPService;
 
     public AdminResponse criarAdmin(AdminRequest request) {
         if (!adminRepository.findAll().isEmpty()) {
@@ -35,11 +39,14 @@ public class AdminService {
         }
         validarSenha(request.getSenha(), request.getConfirmaSenha());
 
+        Endereco endereco = montarEnderecoComCep(request.getEndereco());
+
         Admin admin = Admin.builder()
                 .nome(request.getNome())
                 .email(request.getEmail())
                 .telefone(request.getTelefone())
                 .senha(passwordEncoder.encode(request.getSenha()))
+                .endereco(endereco)
                 .build();
 
         return toResponse(adminRepository.save(admin));
@@ -54,6 +61,9 @@ public class AdminService {
         admin.setNome(request.getNome());
         admin.setTelefone(request.getTelefone());
         admin.setEmail(request.getEmail());
+
+        validarSenha(request.getSenha(), request.getConfirmaSenha());
+
         return toResponse(adminRepository.save(admin));
     }
 
@@ -67,10 +77,10 @@ public class AdminService {
     public Admin buscarPorLogin(String login) {
         return adminRepository
                 .findByEmailOrTelefone(login, login)
-                .orElseThrow(() -> new EntityNotFoundException("Administrador não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Administrador não encontrado."));
     }
 
-    public void alterarSenha(Long id, AlterarSenhaRequest request) {
+    public AdminResponse alterarSenha(Long id, AlterarSenhaRequest request) {
         Admin admin = buscarAdminPeloId(id);
 
         if (!passwordEncoder.matches(request.getSenhaAtual(), admin.getSenha())) {
@@ -81,27 +91,28 @@ public class AdminService {
 
         admin.setSenha(passwordEncoder.encode(request.getNovaSenha()));
         adminRepository.save(admin);
+
+        return toResponse(admin);
     }
 
-    public AdminResponse autenticar(LoginRequest request) {
+    public AuthResponse autenticar(LoginRequest request) {
         if (!campoValido(request.getLogin()) || !campoValido(request.getSenha())) {
             throw new IllegalArgumentException("Login e senha são obrigatórios.");
         }
 
         Admin admin = adminRepository
                 .findByEmailOrTelefone(request.getLogin(), request.getLogin())
-                .orElseThrow(() -> new EntityNotFoundException("Admin não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Admin não encontrado."));
 
         if (!passwordEncoder.matches(request.getSenha(), admin.getSenha())) {
-            throw new IllegalArgumentException("Credenciais inválidas.");
+            throw new NaoAutorizadoException("Credenciais inválidas.");
         }
 
         JwtToken jwtToken = jwtUtils.gerarToken(admin.getId(), admin.getEmail()); // instância
 
         AdminResponse response = toResponse(admin);
-        response.setToken(jwtToken.getToken());
 
-        return response;
+        return toAuthResponse(response, jwtToken.getToken());
     }
 
     public void enviarEmailRedefinicao(String email) {
@@ -159,7 +170,52 @@ public class AdminService {
         response.setNome(admin.getNome());
         response.setTelefone(admin.getTelefone());
         response.setEmail(admin.getEmail());
+
+        if (admin.getEndereco() != null) {
+            Endereco endereco = admin.getEndereco();
+
+            EnderecoResponse enderecoResponse = new EnderecoResponse();
+            enderecoResponse.setRua(endereco.getRua());
+            enderecoResponse.setNumero(endereco.getNumero());
+            enderecoResponse.setBairro(endereco.getBairro());
+            enderecoResponse.setCidade(endereco.getCidade());
+            enderecoResponse.setEstado(endereco.getEstado());
+            enderecoResponse.setCep(endereco.getCep());
+
+            response.setEndereco(enderecoResponse);
+        }
+
         return response;
+    }
+
+    private AuthResponse toAuthResponse(AdminResponse admin, String token) {
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setToken(token);
+        authResponse.setResponse(admin);
+        return authResponse;
+    }
+
+    private Endereco montarEnderecoComCep(EnderecoRequest dto) {
+
+        ViaCEPResponse viaCep = viaCEPService.buscarEnderecoPeloCEP(dto.getCep());
+
+        Endereco endereco = new Endereco();
+
+        endereco.setRua(dto.getRua());
+        endereco.setNumero(dto.getNumero());
+
+        // se não vier bairro, usa do ViaCEP
+        endereco.setBairro(
+                dto.getBairro() != null && !dto.getBairro().isBlank()
+                        ? dto.getBairro()
+                        : viaCep.getBairro()
+        );
+
+        endereco.setCidade(viaCep.getLocalidade());
+        endereco.setEstado(viaCep.getUf());
+        endereco.setCep(viaCep.getCep().replace("-", ""));
+
+        return endereco;
     }
 
     private boolean campoValido(String valor) {

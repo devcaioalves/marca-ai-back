@@ -1,5 +1,6 @@
 package com.marcaaiback.service;
 
+import com.marcaaiback.exception.EntidadeNaoEncontradaException;
 import com.marcaaiback.model.dto.notificacao.NotificacaoRequest;
 import com.marcaaiback.model.dto.notificacao.NotificacaoResponse;
 import com.marcaaiback.model.entity.Agendamento;
@@ -44,15 +45,23 @@ public class NotificacaoService {
     }
 
     public List<NotificacaoResponse> listarPorAgendamento(Long agendamentoId) {
-        return notificacaoRepository.findByAgendamentoId(agendamentoId)
-                .stream()
+        List<Notificacao> notificacoes = notificacaoRepository.findByAgendamentoId(agendamentoId);
+        if (notificacoes.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Não há notificações.");
+        }
+
+        return notificacoes.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     public List<NotificacaoResponse> listarPorStatus(StatusNotificacao status) {
-        return notificacaoRepository.findByStatusNotificacao(status)
-                .stream()
+        List<Notificacao> notificacoes = notificacaoRepository.findByStatusNotificacao(status);
+        if (notificacoes.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Não há notificações.");
+        }
+
+        return notificacoes.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }

@@ -34,7 +34,7 @@ public class ClienteValidator {
             throw new OperacaoNaoPermitidaException("Número de celular inválido. Deve começar com 9 após o DDD.");
         }
 
-        return telefoneFormatado;
+        return "55" + telefoneFormatado;
     }
 
     public void validarTelefoneDuplicado(String telefone) {

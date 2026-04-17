@@ -9,11 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminResponse {
+public class AuthResponse {
 
-    private Long id;
-    private String nome;
-    private String telefone;
-    private String email;
-    private EnderecoResponse endereco;
+    private String token;
+    private AdminResponse response;
 }

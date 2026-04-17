@@ -29,6 +29,7 @@ public class ClienteController {
 
     @GetMapping("/buscar-pelo-telefone/{telefone}")
     public ResponseEntity<ClienteResponse> buscarPorTelefone(@PathVariable String telefone) {
+        System.out.println("Telefone recebido: " + telefone);
         return ResponseEntity.ok(clienteService.buscarPorTelefone(telefone));
     }
 

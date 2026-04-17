@@ -107,11 +107,21 @@ class HorarioDisponivelServiceTest {
     void deveAlterarDisponibilidade() {
         HorarioDisponivel horario = criarHorario();
         horario.setDisponivel(true);
-        when(horarioDisponivelRepository.findById(1L)).thenReturn(Optional.of(horario));
 
-        horarioDisponivelService.alterarDisponibilidade(1L);
+        HorarioDisponivelRequest request = new HorarioDisponivelRequest(
+                LocalDate.now().plusDays(1),        // data futura (passa validação)
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0)
+        );
 
-        assertThat(horario.isDisponivel()).isFalse();
+        when(horarioDisponivelRepository.findById(1L))
+                .thenReturn(Optional.of(horario));
+
+        when(horarioDisponivelRepository.save(any()))
+                .thenReturn(horario);
+
+        horarioDisponivelService.alterarDisponibilidade(1L, request);
+
         verify(horarioDisponivelRepository).save(horario);
     }
 

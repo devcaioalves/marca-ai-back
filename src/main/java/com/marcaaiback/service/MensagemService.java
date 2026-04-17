@@ -1,5 +1,6 @@
 package com.marcaaiback.service;
 
+import com.marcaaiback.exception.EntidadeNaoEncontradaException;
 import com.marcaaiback.model.dto.mensagem.MensagemRequest;
 import com.marcaaiback.model.dto.mensagem.MensagemResponse;
 import com.marcaaiback.model.entity.Agendamento;
@@ -44,15 +45,23 @@ public class MensagemService {
     }
 
     public List<MensagemResponse> listarPorAgendamento(Long agendamentoId) {
-        return mensagemRepository.findByAgendamentoId(agendamentoId)
-                .stream()
+        List<Mensagem> mensagens = mensagemRepository.findByAgendamentoId(agendamentoId);
+        if (mensagens.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Não há mensagens para esse agendamento.");
+        }
+
+        return mensagens.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     public List<MensagemResponse> listarPorCliente(Long clienteId) {
-        return mensagemRepository.findByClienteId(clienteId)
-                .stream()
+        List<Mensagem> mensagens = mensagemRepository.findByClienteId(clienteId);
+        if (mensagens.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Não há mensagens para esse cliente.");
+        }
+
+        return mensagens.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }

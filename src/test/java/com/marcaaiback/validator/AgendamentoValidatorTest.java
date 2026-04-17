@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalTime;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -30,7 +32,13 @@ class AgendamentoValidatorTest {
         HorarioDisponivel horario = new HorarioDisponivel();
         horario.setDisponivel(false);
 
-        assertThatThrownBy(() -> agendamentoValidator.validarHorarioDisponivel(horario))
+        assertThatThrownBy(() ->
+                agendamentoValidator.validarHorarioDentroDoIntervalo(
+                        horario,
+                        LocalTime.of(10, 0),
+                        LocalTime.of(11, 0)
+                )
+        )
                 .isInstanceOf(OperacaoNaoPermitidaException.class)
                 .hasMessageContaining("não está mais disponível");
     }
@@ -43,7 +51,13 @@ class AgendamentoValidatorTest {
 
         when(agendamentoRepository.existsByHorarioDisponivelId(1L)).thenReturn(true);
 
-        assertThatThrownBy(() -> agendamentoValidator.validarHorarioDisponivel(horario))
+        assertThatThrownBy(() ->
+                agendamentoValidator.validarHorarioDentroDoIntervalo(
+                        horario,
+                        LocalTime.of(10, 0),
+                        LocalTime.of(11, 0)
+                )
+        )
                 .isInstanceOf(OperacaoNaoPermitidaException.class)
                 .hasMessageContaining("Já existe um agendamento");
     }
@@ -56,8 +70,13 @@ class AgendamentoValidatorTest {
 
         when(agendamentoRepository.existsByHorarioDisponivelId(1L)).thenReturn(false);
 
-        assertThatCode(() -> agendamentoValidator.validarHorarioDisponivel(horario))
-                .doesNotThrowAnyException();
+        assertThatCode(() ->
+                agendamentoValidator.validarHorarioDentroDoIntervalo(
+                        horario,
+                        LocalTime.of(10, 0),
+                        LocalTime.of(11, 0)
+                )
+        ).doesNotThrowAnyException();
     }
 
     // ---- validarCancelamento ----

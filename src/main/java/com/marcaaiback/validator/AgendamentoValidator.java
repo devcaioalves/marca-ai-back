@@ -4,6 +4,7 @@ import com.marcaaiback.exception.OperacaoNaoPermitidaException;
 import com.marcaaiback.exception.RecursoDuplicadoException;
 import com.marcaaiback.model.entity.Agendamento;
 import com.marcaaiback.model.entity.HorarioDisponivel;
+import com.marcaaiback.model.entity.Servico;
 import com.marcaaiback.model.enuns.StatusAgendamento;
 import com.marcaaiback.repository.AgendamentoRepository;
 import lombok.RequiredArgsConstructor;
@@ -82,24 +83,28 @@ public class AgendamentoValidator {
         }
     }
 
-    public void validarConflito(LocalDate data, LocalTime horaInicio, LocalTime horaFim) {
-        List<Agendamento> agendamentosDoDia = agendamentoRepository.findAllByData(data);
+    public void validarConflito(HorarioDisponivel horario, LocalTime horaInicio, LocalTime horaFim) {
 
-        boolean temConflito;
-        for(Agendamento agendamento : agendamentosDoDia) {
-            if(agendamento.getStatusAgendamento() == StatusAgendamento.CANCELADO){
+        List<Agendamento> agendamentos = horario.getAgendamentos();
+
+        for (Agendamento agendamento : agendamentos) {
+
+            if (agendamento.getStatusAgendamento() == StatusAgendamento.CANCELADO) {
                 continue;
             }
 
-            LocalTime horarioInicio = agendamento.getHoraInicio();
-            LocalTime horarioFim = agendamento.getHoraFim();
+            boolean conflito = horaInicio.isBefore(agendamento.getHoraFim()) &&
+                    horaFim.isAfter(agendamento.getHoraInicio());
 
-            temConflito = horaInicio.isBefore(horarioFim) &&
-                    horaFim.isAfter(horarioInicio);
-
-            if (temConflito) {
+            if (conflito) {
                 throw new OperacaoNaoPermitidaException("Horário indisponível.");
             }
+        }
+    }
+
+    public void validarServicoAtivo(Servico servico) {
+        if (!servico.isAtivo()) {
+            throw new OperacaoNaoPermitidaException("Não é possível agendar um serviço desativado.");
         }
     }
 }

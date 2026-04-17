@@ -1,5 +1,6 @@
 package com.marcaaiback.jwt;
 
+import com.marcaaiback.model.entity.Admin;
 import org.springframework.security.core.userdetails.User;
 
 import java.io.Serial;
@@ -11,8 +12,9 @@ public class JwtUserDetails extends User {
     private static final long serialVersionUID = 1L;
     private final com.marcaaiback.model.entity.Admin admin;
 
-    public JwtUserDetails(com.marcaaiback.model.entity.Admin admin) {
-        super(admin.getEmail(), "", Collections.emptyList());
+    public JwtUserDetails(Admin admin) {
+        super(admin.getEmail(), admin.getSenha(), admin.getAuthorities()
+        );
         this.admin = admin;
     }
 
@@ -21,5 +23,7 @@ public class JwtUserDetails extends User {
     }
 
 
-
+    public Admin getAdmin() {
+        return this.admin;
+    }
 }

@@ -9,11 +9,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminResponse {
-
-    private Long id;
-    private String nome;
-    private String telefone;
-    private String email;
-    private EnderecoResponse endereco;
+public class EnderecoResponse {
+    private String rua;
+    private String numero;
+    private String bairro;
+    private String cidade;
+    private String estado;
+    private String cep;
 }

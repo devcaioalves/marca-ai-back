@@ -27,6 +27,8 @@ public class AdminRequest {
     @Size(max = 255, message = "O e-mail deve ter no máximo 255 caracteres.")
     private String email;
 
+    private EnderecoRequest endereco;
+
     @NotBlank(message = "A senha é obrigatória.")
     @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres.")
     private String senha;

@@ -91,16 +91,6 @@ public class HorarioDisponivelValidator {
         }
     }
 
-    public void validarAtualizacao(HorarioDisponivel horario){
-        boolean possuiAgendamentos = horario.getAgendamentos()
-                .stream()
-                .anyMatch(a -> a.getStatusAgendamento() == StatusAgendamento.AGENDADO ||
-                            a.getStatusAgendamento() == StatusAgendamento.CONFIRMADO);
-        if(possuiAgendamentos) {
-            throw new OperacaoNaoPermitidaException("Não é possível alterar este horário, pois existem agendamentos para vinculados.");
-        }
-    }
-
     public void validarExclusao(HorarioDisponivel horario) {
         boolean possuiAgendamento = horario.getAgendamentos()
                 .stream()
@@ -110,6 +100,5 @@ public class HorarioDisponivelValidator {
             throw new OperacaoNaoPermitidaException("Não é possível excluir este horário, pois existem agendamentos vinculados a ele.");
         }
     }
-
 
 }

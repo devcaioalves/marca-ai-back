@@ -2,10 +2,10 @@ package com.marcaaiback.controller;
 
 import com.marcaaiback.model.dto.admin.AdminRequest;
 import com.marcaaiback.model.dto.admin.AdminResponse;
+import com.marcaaiback.model.dto.admin.AuthResponse;
 import com.marcaaiback.model.dto.admin.login.LoginRequest;
 import com.marcaaiback.model.dto.admin.senha.AlterarSenhaRequest;
 import com.marcaaiback.service.AdminService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,16 +20,9 @@ public class AdminController {
     private final AdminService adminService;
 
     @PostMapping("/criar-admin")
-    public ResponseEntity<AdminResponse> criarAdmin(@RequestBody @Valid AdminRequest request) {
-        try {
-            AdminResponse adminResponse = adminService.criarAdmin(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(adminResponse);
-        } catch (IllegalArgumentException ex) {
-            // Retorna um AdminResponse vazio com a mensagem de erro
-            AdminResponse erro = new AdminResponse();
-            erro.setMensagemErro(ex.getMessage()); // adicione esse campo no DTO
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
-        }
+    public ResponseEntity<AdminResponse> criarAdmin(@RequestBody @Valid AdminRequest adminRequest) {
+        AdminResponse adminResponse = adminService.criarAdmin(adminRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminResponse);
     }
 
     @GetMapping("/buscar-admin")
@@ -43,28 +36,14 @@ public class AdminController {
     }
 
     @PatchMapping("/alterar-senha-admin/{id}")
-    public ResponseEntity<AdminResponse> alterarSenha(@PathVariable Long id, @RequestBody @Valid AlterarSenhaRequest request) {
-        try {
-            adminService.alterarSenha(id, request);
-            AdminResponse resposta = new AdminResponse();
-            resposta.setMensagemErro("Senha alterada com sucesso!");
-            return ResponseEntity.ok(resposta);
-        } catch (IllegalArgumentException ex) {
-            AdminResponse erro = new AdminResponse();
-            erro.setMensagemErro(ex.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
-        }
+    public ResponseEntity<Void> alterarSenha(@PathVariable Long id, @RequestBody @Valid AlterarSenhaRequest request) {
+        adminService.alterarSenha(id, request);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AdminResponse> login(@RequestBody @Valid LoginRequest request) {
-        try {
-            AdminResponse usuario = adminService.autenticar(request);
-            return ResponseEntity.ok(usuario);
-        } catch (EntityNotFoundException | IllegalArgumentException ex) {
-            AdminResponse erro = new AdminResponse();
-            erro.setMensagemErro(ex.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erro);
-        }
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
+        AuthResponse usuario = adminService.autenticar(request);
+        return ResponseEntity.ok(usuario);
     }
 }

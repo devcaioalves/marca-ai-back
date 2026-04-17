@@ -1,5 +1,6 @@
 package com.marcaaiback.model.dto.agendamento;
 
+import com.marcaaiback.model.dto.admin.EnderecoResponse;
 import com.marcaaiback.model.enuns.StatusAgendamento;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,4 +22,5 @@ public class AgendamentoResumoResponse {
     private LocalTime horaFim;
     private StatusAgendamento statusAgendamento;
     private String servicoNome;
+    private String clienteNome;
 }

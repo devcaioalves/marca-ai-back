@@ -21,7 +21,7 @@ public class ServicoValidator {
     }
 
     public void validarValor(BigDecimal valor) {
-        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) < 0) {
             throw new OperacaoNaoPermitidaException(
                     "O valor do serviço deve ser maior que zero."
             );

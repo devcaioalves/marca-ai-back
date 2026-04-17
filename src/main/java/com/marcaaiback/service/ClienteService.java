@@ -1,5 +1,6 @@
 package com.marcaaiback.service;
 
+import com.marcaaiback.exception.EntidadeNaoEncontradaException;
 import com.marcaaiback.model.dto.agendamento.AgendamentoResumoResponse;
 import com.marcaaiback.model.dto.cliente.ClienteRequest;
 import com.marcaaiback.model.dto.cliente.ClienteResponse;
@@ -39,14 +40,21 @@ public class ClienteService {
 
     public ClienteResponse buscarPorTelefone(String telefone) {
         String telefonePadronizado = clienteValidator.validarEPadronizarTelefone(telefone);
+        System.out.println("Telefone padronizado: " + telefonePadronizado);
         Cliente cliente = clienteRepository.findByTelefone(telefonePadronizado)
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado."));
         return toResponse(cliente);
     }
 
     public List<ClienteResponse> listarTodos() {
-        return clienteRepository.findAll()
-                .stream()
+
+        List<Cliente> clientes = clienteRepository.findAll();
+
+        if (clientes.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Nenhum cliente encontrado.");
+        }
+
+        return clientes.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -90,6 +98,7 @@ public class ClienteService {
             resumo.setHoraFim(a.getHoraFim());
             resumo.setStatusAgendamento(a.getStatusAgendamento());
             resumo.setServicoNome(a.getServico().getNome());
+            resumo.setClienteNome(a.getCliente().getNome());
             return resumo;
         }).collect(Collectors.toList());
 

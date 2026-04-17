@@ -1,5 +1,7 @@
 package com.marcaaiback.service;
 
+import com.marcaaiback.exception.EntidadeNaoEncontradaException;
+import com.marcaaiback.exception.OperacaoNaoPermitidaException;
 import com.marcaaiback.model.dto.servico.ServicoRequest;
 import com.marcaaiback.model.dto.servico.ServicoResponse;
 import com.marcaaiback.model.entity.Servico;
@@ -49,8 +51,12 @@ public class ServicoService {
     }
 
     public List<ServicoResponse> listarAtivos() {
-        return servicoRepository.findByAtivoTrueOrderByNomeAsc()
-                .stream()
+        List<Servico> servicos = servicoRepository.findByAtivoTrueOrderByNomeAsc();
+        if (servicos.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Não há nenhum serviço ativo.");
+        }
+
+        return servicos.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -81,6 +87,11 @@ public class ServicoService {
 
     public void deletar(Long id) {
         Servico servico = buscarEntidade(id);
+
+        if (servico.getAgendamentos() != null && !servico.getAgendamentos().isEmpty()) {
+            throw new OperacaoNaoPermitidaException("Não é possível excluir um serviço com agendamentos vinculados.");
+        }
+
         servicoRepository.delete(servico);
     }
 

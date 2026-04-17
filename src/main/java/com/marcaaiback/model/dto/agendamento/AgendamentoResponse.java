@@ -1,5 +1,6 @@
 package com.marcaaiback.model.dto.agendamento;
 
+import com.marcaaiback.model.dto.admin.EnderecoResponse;
 import com.marcaaiback.model.enuns.StatusAgendamento;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,4 +32,5 @@ public class AgendamentoResponse {
 
     // apenas dados necessários do horário
     private Long horarioDisponivelId;
+    private EnderecoResponse endereco;
 }

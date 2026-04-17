@@ -1,6 +1,5 @@
 package com.marcaaiback.service;
 
-import com.marcaaiback.exception.OperacaoNaoPermitidaException;
 import com.marcaaiback.model.dto.servico.ServicoRequest;
 import com.marcaaiback.model.dto.servico.ServicoResponse;
 import com.marcaaiback.model.entity.Servico;
