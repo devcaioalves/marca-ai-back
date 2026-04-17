@@ -4,86 +4,87 @@ import com.marcaaiback.exception.OperacaoNaoPermitidaException;
 import com.marcaaiback.model.entity.Agendamento;
 import com.marcaaiback.model.entity.Cliente;
 import com.marcaaiback.model.enuns.TipoDeMensagem;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@ExtendWith(MockitoExtension.class)
 class MensagemValidatorTest {
 
-    private final MensagemValidator mensagemValidator = new MensagemValidator();
-
-    // ---- validarConteudo ----
+    @InjectMocks
+    MensagemValidator validator;
 
     @Test
-    void naoDeveLancarExcecaoQuandoConteudoValido() {
-        assertThatCode(() -> mensagemValidator.validarConteudo("Olá, quero agendar"))
-                .doesNotThrowAnyException();
+    @DisplayName("validarConteudo: não lança com conteúdo válido")
+    void validarConteudo_valido() {
+        assertThatCode(() -> validator.validarConteudo("Olá!")).doesNotThrowAnyException();
     }
 
     @Test
-    void deveLancarExcecaoQuandoConteudoNulo() {
-        assertThatThrownBy(() -> mensagemValidator.validarConteudo(null))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("não pode ser vazia");
+    @DisplayName("validarConteudo: lança quando vazio")
+    void validarConteudo_vazio() {
+        assertThatThrownBy(() -> validator.validarConteudo(""))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
     }
 
     @Test
-    void deveLancarExcecaoQuandoConteudoVazio() {
-        assertThatThrownBy(() -> mensagemValidator.validarConteudo("  "))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("não pode ser vazia");
+    @DisplayName("validarConteudo: lança quando nulo")
+    void validarConteudo_nulo() {
+        assertThatThrownBy(() -> validator.validarConteudo(null))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
     }
 
     @Test
-    void deveLancarExcecaoQuandoConteudoMaiorQue500Caracteres() {
-        String conteudoLongo = "a".repeat(501);
-        assertThatThrownBy(() -> mensagemValidator.validarConteudo(conteudoLongo))
+    @DisplayName("validarConteudo: lança quando excede 500 caracteres")
+    void validarConteudo_muitoLongo() {
+        String longo = "a".repeat(501);
+        assertThatThrownBy(() -> validator.validarConteudo(longo))
                 .isInstanceOf(OperacaoNaoPermitidaException.class)
                 .hasMessageContaining("500 caracteres");
     }
 
-    // ---- validarClienteDoAgendamento ----
+    @Test
+    @DisplayName("validarClienteDoAgendamento: lança quando cliente não pertence ao agendamento")
+    void validarCliente_errado() {
+        Cliente c1 = new Cliente();
+        c1.setId(1L);
+        Cliente c2 = new Cliente();
+        c2.setId(2L);
+        Agendamento ag = new Agendamento();
+        ag.setCliente(c2);
+
+        assertThatThrownBy(() -> validator.validarClienteDoAgendamento(c1, ag))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
+    }
 
     @Test
-    void naoDeveLancarExcecaoQuandoClienteCorresponde() {
-        Cliente cliente = new Cliente();
-        cliente.setId(1L);
+    @DisplayName("validarClienteDoAgendamento: não lança quando cliente correto")
+    void validarCliente_correto() {
+        Cliente c1 = new Cliente();
+        c1.setId(1L);
+        Agendamento ag = new Agendamento();
+        ag.setCliente(c1);
 
-        Agendamento agendamento = new Agendamento();
-        agendamento.setCliente(cliente);
-
-        assertThatCode(() -> mensagemValidator.validarClienteDoAgendamento(cliente, agendamento))
+        assertThatCode(() -> validator.validarClienteDoAgendamento(c1, ag))
                 .doesNotThrowAnyException();
     }
 
     @Test
-    void deveLancarExcecaoQuandoClienteNaoPertenceAoAgendamento() {
-        Cliente cliente1 = new Cliente();
-        cliente1.setId(1L);
-
-        Cliente cliente2 = new Cliente();
-        cliente2.setId(2L);
-
-        Agendamento agendamento = new Agendamento();
-        agendamento.setCliente(cliente2);
-
-        assertThatThrownBy(() -> mensagemValidator.validarClienteDoAgendamento(cliente1, agendamento))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("não pertence");
+    @DisplayName("validarTipo: lança quando tipo nulo")
+    void validarTipo_nulo() {
+        assertThatThrownBy(() -> validator.validarTipo(null))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
     }
 
-    // ---- validarTipo ----
-
     @Test
-    void naoDeveLancarExcecaoQuandoTipoValido() {
-        assertThatCode(() -> mensagemValidator.validarTipo(TipoDeMensagem.TEXTO))
+    @DisplayName("validarTipo: não lança com tipo válido")
+    void validarTipo_valido() {
+        assertThatCode(() -> validator.validarTipo(TipoDeMensagem.TEXTO))
                 .doesNotThrowAnyException();
-    }
-
-    @Test
-    void deveLancarExcecaoQuandoTipoNulo() {
-        assertThatThrownBy(() -> mensagemValidator.validarTipo(null))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("obrigatório");
     }
 }

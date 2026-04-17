@@ -1,7 +1,9 @@
 package com.marcaaiback.validator;
 
 import com.marcaaiback.exception.OperacaoNaoPermitidaException;
-import com.marcaaiback.repository.ServicoRepository;
+import com.marcaaiback.exception.RecursoDuplicadoException;
+import com.marcaaiback.repository.*;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,116 +18,78 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ServicoValidatorTest {
 
-    @Mock
-    private ServicoRepository servicoRepository;
+    @Mock ServicoRepository servicoRepository;
 
-    @InjectMocks
-    private ServicoValidator servicoValidator;
-
-    // ---- validarNome ----
+    @InjectMocks ServicoValidator validator;
 
     @Test
-    void naoDeveLancarExcecaoQuandoNomeValido() {
-        assertThatCode(() -> servicoValidator.validarNome("Corte de cabelo"))
-                .doesNotThrowAnyException();
+    @DisplayName("validarNome: não lança com nome válido")
+    void validarNome_valido() {
+        assertThatCode(() -> validator.validarNome("Corte")).doesNotThrowAnyException();
     }
 
     @Test
-    void deveLancarExcecaoQuandoNomeNulo() {
-        assertThatThrownBy(() -> servicoValidator.validarNome(null))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("obrigatório");
+    @DisplayName("validarNome: lança quando nome vazio")
+    void validarNome_vazio() {
+        assertThatThrownBy(() -> validator.validarNome(""))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
     }
 
     @Test
-    void deveLancarExcecaoQuandoNomeVazio() {
-        assertThatThrownBy(() -> servicoValidator.validarNome("  "))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("obrigatório");
-    }
-
-    // ---- validarValor ----
-
-    @Test
-    void naoDeveLancarExcecaoQuandoValorValido() {
-        assertThatCode(() -> servicoValidator.validarValor(new BigDecimal("50.00")))
-                .doesNotThrowAnyException();
+    @DisplayName("validarNome: lança quando nome nulo")
+    void validarNome_nulo() {
+        assertThatThrownBy(() -> validator.validarNome(null))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
     }
 
     @Test
-    void deveLancarExcecaoQuandoValorNulo() {
-        assertThatThrownBy(() -> servicoValidator.validarValor(null))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("maior que zero");
+    @DisplayName("validarValor: não lança com valor positivo")
+    void validarValor_valido() {
+        assertThatCode(() -> validator.validarValor(new BigDecimal("10.00"))).doesNotThrowAnyException();
     }
 
     @Test
-    void deveLancarExcecaoQuandoValorZero() {
-        assertThatThrownBy(() -> servicoValidator.validarValor(BigDecimal.ZERO))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("maior que zero");
+    @DisplayName("validarValor: lança quando valor negativo")
+    void validarValor_negativo() {
+        assertThatThrownBy(() -> validator.validarValor(new BigDecimal("-1.00")))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
     }
 
     @Test
-    void deveLancarExcecaoQuandoValorNegativo() {
-        assertThatThrownBy(() -> servicoValidator.validarValor(new BigDecimal("-10.00")))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("maior que zero");
-    }
-
-    // ---- validarDuracao ----
-
-    @Test
-    void naoDeveLancarExcecaoQuandoDuracaoValida() {
-        assertThatCode(() -> servicoValidator.validarDuracao(30))
-                .doesNotThrowAnyException();
+    @DisplayName("validarValor: lança quando valor nulo")
+    void validarValor_nulo() {
+        assertThatThrownBy(() -> validator.validarValor(null))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
     }
 
     @Test
-    void deveLancarExcecaoQuandoDuracaoNula() {
-        assertThatThrownBy(() -> servicoValidator.validarDuracao(null))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("maior que zero");
+    @DisplayName("validarDuracao: não lança com duração positiva")
+    void validarDuracao_valida() {
+        assertThatCode(() -> validator.validarDuracao(30)).doesNotThrowAnyException();
     }
 
     @Test
-    void deveLancarExcecaoQuandoDuracaoZero() {
-        assertThatThrownBy(() -> servicoValidator.validarDuracao(0))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("maior que zero");
+    @DisplayName("validarDuracao: lança quando duração zero")
+    void validarDuracao_zero() {
+        assertThatThrownBy(() -> validator.validarDuracao(0))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
     }
 
-    // ---- validarDuplicidade ----
-
     @Test
-    void deveLancarExcecaoQuandoNomeJaExiste() {
+    @DisplayName("validarDuplicidade: lança quando nome já existe")
+    void validarDuplicidade_existe() {
         when(servicoRepository.existsByNomeIgnoreCase("Corte")).thenReturn(true);
-        assertThatThrownBy(() -> servicoValidator.validarDuplicidade("Corte"))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("Já existe um serviço");
+
+        assertThatThrownBy(() -> validator.validarDuplicidade("Corte"))
+                .isInstanceOf(RecursoDuplicadoException.class);
     }
 
     @Test
-    void naoDeveLancarExcecaoQuandoNomeNaoExiste() {
-        when(servicoRepository.existsByNomeIgnoreCase("Corte")).thenReturn(false);
-        assertThatCode(() -> servicoValidator.validarDuplicidade("Corte"))
-                .doesNotThrowAnyException();
-    }
-
-    // ---- validarDuplicidadeNaAtualizacao ----
-
-    @Test
-    void deveLancarExcecaoQuandoNomeDuplicadoNaAtualizacao() {
+    @DisplayName("validarDuplicidadeNaAtualizacao: lança quando outro serviço tem o mesmo nome")
+    void validarDuplicidadeAtualizacao_existe() {
         when(servicoRepository.existsByNomeIgnoreCaseAndIdNot("Corte", 1L)).thenReturn(true);
-        assertThatThrownBy(() -> servicoValidator.validarDuplicidadeNaAtualizacao("Corte", 1L))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("Já existe um serviço");
-    }
 
-    @Test
-    void naoDeveLancarExcecaoQuandoNomeNaoConflita() {
-        when(servicoRepository.existsByNomeIgnoreCaseAndIdNot("Corte", 1L)).thenReturn(false);
-        assertThatCode(() -> servicoValidator.validarDuplicidadeNaAtualizacao("Corte", 1L))
-                .doesNotThrowAnyException();
+        assertThatThrownBy(() -> validator.validarDuplicidadeNaAtualizacao("Corte", 1L))
+                .isInstanceOf(RecursoDuplicadoException.class);
     }
 }

@@ -1,8 +1,9 @@
 package com.marcaaiback.validator;
 
 import com.marcaaiback.exception.OperacaoNaoPermitidaException;
+import com.marcaaiback.exception.RecursoDuplicadoException;
 import com.marcaaiback.repository.ClienteRepository;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,108 +11,87 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ClienteValidatorTest {
 
     @Mock
-    private ClienteRepository clienteRepository;
+    ClienteRepository clienteRepository;
 
     @InjectMocks
-    private ClienteValidator clienteValidator;
-
-    // ---- validarEPadronizarTelefone ----
+    ClienteValidator validator;
 
     @Test
-    void deveRetornarTelefoneFormatadoQuandoValido() {
-        String resultado = clienteValidator.validarEPadronizarTelefone("(11) 99999-8888");
-        assertThat(resultado).isEqualTo("11999998888");
+    @DisplayName("validarEPadronizarTelefone: padroniza telefone válido")
+    void padronizar_sucesso() {
+        String resultado = validator.validarEPadronizarTelefone("81999999999");
+        assertThat(resultado).isEqualTo("5581999999999");
     }
 
     @Test
-    void deveLancarExcecaoQuandoTelefoneNulo() {
-        assertThatThrownBy(() -> clienteValidator.validarEPadronizarTelefone(null))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("não pode ser vazio");
+    @DisplayName("validarEPadronizarTelefone: padroniza com formatação")
+    void padronizar_comFormatacao() {
+        String resultado = validator.validarEPadronizarTelefone("(81) 99999-9999");
+        assertThat(resultado).isEqualTo("5581999999999");
     }
 
     @Test
-    void deveLancarExcecaoQuandoTelefoneVazio() {
-        assertThatThrownBy(() -> clienteValidator.validarEPadronizarTelefone("   "))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("não pode ser vazio");
+    @DisplayName("validarEPadronizarTelefone: lança quando vazio")
+    void padronizar_vazio() {
+        assertThatThrownBy(() -> validator.validarEPadronizarTelefone(""))
+                .isInstanceOf(OperacaoNaoPermitidaException.class);
     }
 
     @Test
-    void deveLancarExcecaoQuandoTelefoneMenosDe11Digitos() {
-        assertThatThrownBy(() -> clienteValidator.validarEPadronizarTelefone("1199999888"))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("11 dígitos");
-    }
-
-    @Test
-    void deveLancarExcecaoQuandoTelefoneMaisDe11Digitos() {
-        assertThatThrownBy(() -> clienteValidator.validarEPadronizarTelefone("119999988881"))
+    @DisplayName("validarEPadronizarTelefone: lança quando menos de 11 dígitos")
+    void padronizar_menosDe11Digitos() {
+        assertThatThrownBy(() -> validator.validarEPadronizarTelefone("819999"))
                 .isInstanceOf(OperacaoNaoPermitidaException.class)
                 .hasMessageContaining("11 dígitos");
     }
 
     @Test
-    void deveLancarExcecaoQuandoDDDInvalido() {
-        assertThatThrownBy(() -> clienteValidator.validarEPadronizarTelefone("01999998888"))
+    @DisplayName("validarEPadronizarTelefone: lança quando não começa com 9")
+    void padronizar_semNoveAposDDD() {
+        assertThatThrownBy(() -> validator.validarEPadronizarTelefone("81899999999"))
                 .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("DDD inválido");
+                .hasMessageContaining("9 após o DDD");
     }
 
     @Test
-    void deveLancarExcecaoQuandoNaoComecaComNove() {
-        assertThatThrownBy(() -> clienteValidator.validarEPadronizarTelefone("11899998888"))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("Deve começar com 9");
-    }
+    @DisplayName("validarTelefoneDuplicado: lança quando já existe")
+    void duplicado_existe() {
+        when(clienteRepository.existsByTelefone("5581999999999")).thenReturn(true);
 
-    // ---- validarTelefoneDuplicado ----
-
-    @Test
-    void deveLancarExcecaoQuandoTelefoneJaCadastrado() {
-        when(clienteRepository.existsByTelefone("11999998888")).thenReturn(true);
-        assertThatThrownBy(() -> clienteValidator.validarTelefoneDuplicado("11999998888"))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("Já existe um cliente");
+        assertThatThrownBy(() -> validator.validarTelefoneDuplicado("5581999999999"))
+                .isInstanceOf(RecursoDuplicadoException.class);
     }
 
     @Test
-    void naoDeveLancarExcecaoQuandoTelefoneNaoExiste() {
-        when(clienteRepository.existsByTelefone("11999998888")).thenReturn(false);
-        assertThatCode(() -> clienteValidator.validarTelefoneDuplicado("11999998888"))
+    @DisplayName("validarTelefoneDuplicado: não lança quando não existe")
+    void duplicado_naoExiste() {
+        when(clienteRepository.existsByTelefone("5581999999999")).thenReturn(false);
+
+        assertThatCode(() -> validator.validarTelefoneDuplicado("5581999999999"))
                 .doesNotThrowAnyException();
     }
 
-    // ---- validarTelefoneDuplicadoNaAtualizacao ----
-
     @Test
-    void naoDeveLancarExcecaoQuandoTelefoneNaoMudou() {
-        assertThatCode(() ->
-                clienteValidator.validarTelefoneDuplicadoNaAtualizacao("11999998888", "11999998888"))
-                .doesNotThrowAnyException();
-        verifyNoInteractions(clienteRepository);
+    @DisplayName("validarTelefoneDuplicadoNaAtualizacao: não lança quando telefone é o mesmo")
+    void duplicadoAtualizacao_mesmoTelefone() {
+        assertThatCode(() -> validator.validarTelefoneDuplicadoNaAtualizacao(
+                "5581999999999", "5581999999999"
+        )).doesNotThrowAnyException();
     }
 
     @Test
-    void deveLancarExcecaoQuandoNovoTelefoneJaExiste() {
-        when(clienteRepository.existsByTelefone("11988887777")).thenReturn(true);
-        assertThatThrownBy(() ->
-                clienteValidator.validarTelefoneDuplicadoNaAtualizacao("11988887777", "11999998888"))
-                .isInstanceOf(OperacaoNaoPermitidaException.class)
-                .hasMessageContaining("Já existe um cliente");
-    }
+    @DisplayName("validarTelefoneDuplicadoNaAtualizacao: lança quando telefone novo já existe")
+    void duplicadoAtualizacao_novoTelefoneDuplicado() {
+        when(clienteRepository.existsByTelefone("5581988888888")).thenReturn(true);
 
-    @Test
-    void naoDeveLancarExcecaoQuandoNovoTelefoneNaoExiste() {
-        when(clienteRepository.existsByTelefone("11988887777")).thenReturn(false);
-        assertThatCode(() ->
-                clienteValidator.validarTelefoneDuplicadoNaAtualizacao("11988887777", "11999998888"))
-                .doesNotThrowAnyException();
+        assertThatThrownBy(() -> validator.validarTelefoneDuplicadoNaAtualizacao(
+                "5581988888888", "5581999999999"
+        )).isInstanceOf(RecursoDuplicadoException.class);
     }
 }

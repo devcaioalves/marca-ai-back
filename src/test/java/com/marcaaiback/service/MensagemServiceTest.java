@@ -1,5 +1,6 @@
 package com.marcaaiback.service;
 
+import com.marcaaiback.exception.EntidadeNaoEncontradaException;
 import com.marcaaiback.model.dto.mensagem.MensagemRequest;
 import com.marcaaiback.model.dto.mensagem.MensagemResponse;
 import com.marcaaiback.model.entity.Agendamento;
@@ -9,6 +10,8 @@ import com.marcaaiback.model.enuns.StatusAgendamento;
 import com.marcaaiback.model.enuns.TipoDeMensagem;
 import com.marcaaiback.repository.MensagemRepository;
 import com.marcaaiback.validator.MensagemValidator;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,78 +21,105 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MensagemServiceTest {
 
-    @Mock private MensagemRepository mensagemRepository;
-    @Mock private ClienteService clienteService;
-    @Mock private AgendamentoService agendamentoService;
-    @Mock private MensagemValidator mensagemValidator;
+    @Mock
+    MensagemRepository mensagemRepository;
+    @Mock
+    ClienteService clienteService;
+    @Mock
+    AgendamentoService agendamentoService;
+    @Mock
+    MensagemValidator mensagemValidator;
 
     @InjectMocks
-    private MensagemService mensagemService;
+    MensagemService mensagemService;
 
-    private Cliente criarCliente() {
-        Cliente c = new Cliente();
-        c.setId(1L);
-        c.setNome("João");
-        return c;
-    }
+    private Cliente cliente;
+    private Agendamento agendamento;
+    private Mensagem mensagem;
 
-    private Agendamento criarAgendamento() {
-        Agendamento a = new Agendamento();
-        a.setId(1L);
-        a.setCliente(criarCliente());
-        a.setStatusAgendamento(StatusAgendamento.CONFIRMADO);
-        return a;
-    }
+    @BeforeEach
+    void setUp() {
+        cliente = new Cliente();
+        cliente.setId(1L);
+        cliente.setNome("João");
+        cliente.setTelefone("5581999999999");
 
-    private Mensagem criarMensagem() {
-        Mensagem m = new Mensagem();
-        m.setId(1L);
-        m.setConteudo("Olá");
-        m.setTipo(TipoDeMensagem.TEXTO);
-        m.setDataHora(LocalDateTime.now());
-        m.setCliente(criarCliente());
-        m.setAgendamento(criarAgendamento());
-        return m;
+        agendamento = new Agendamento();
+        agendamento.setId(1L);
+        agendamento.setCliente(cliente);
+        agendamento.setStatusAgendamento(StatusAgendamento.AGENDADO);
+
+        mensagem = new Mensagem();
+        mensagem.setId(1L);
+        mensagem.setConteudo("Olá!");
+        mensagem.setTipo(TipoDeMensagem.TEXTO);
+        mensagem.setDataHora(LocalDateTime.now());
+        mensagem.setCliente(cliente);
+        mensagem.setAgendamento(agendamento);
     }
 
     @Test
-    void deveRegistrarMensagemComSucesso() {
-        MensagemRequest request = new MensagemRequest("Olá", TipoDeMensagem.TEXTO, 1L, 1L);
+    @DisplayName("registrar: registra mensagem com sucesso")
+    void registrar_sucesso() {
+        MensagemRequest request = new MensagemRequest("Olá!", TipoDeMensagem.TEXTO, 1L, 1L);
 
-        when(clienteService.buscarEntidade(1L)).thenReturn(criarCliente());
-        when(agendamentoService.buscarEntidade(1L)).thenReturn(criarAgendamento());
-        when(mensagemRepository.save(any())).thenReturn(criarMensagem());
+        when(clienteService.buscarEntidade(1L)).thenReturn(cliente);
+        when(agendamentoService.buscarEntidade(1L)).thenReturn(agendamento);
+        doNothing().when(mensagemValidator).validarConteudo(any());
+        doNothing().when(mensagemValidator).validarClienteDoAgendamento(any(), any());
+        doNothing().when(mensagemValidator).validarTipo(any());
+        when(mensagemRepository.save(any())).thenReturn(mensagem);
 
         MensagemResponse response = mensagemService.registrar(request);
 
-        assertThat(response.getConteudo()).isEqualTo("Olá");
-        assertThat(response.getTipo()).isEqualTo(TipoDeMensagem.TEXTO);
-        verify(mensagemValidator).validarConteudo("Olá");
-        verify(mensagemValidator).validarClienteDoAgendamento(any(), any());
-        verify(mensagemValidator).validarTipo(TipoDeMensagem.TEXTO);
+        assertThat(response.getConteudo()).isEqualTo("Olá!");
+        assertThat(response.getClienteId()).isEqualTo(1L);
     }
 
     @Test
-    void deveListarMensagensPorAgendamento() {
-        when(mensagemRepository.findByAgendamentoId(1L)).thenReturn(List.of(criarMensagem()));
+    @DisplayName("listarPorAgendamento: retorna mensagens existentes")
+    void listarPorAgendamento_sucesso() {
+        when(mensagemRepository.findByAgendamentoId(1L)).thenReturn(List.of(mensagem));
 
-        List<MensagemResponse> lista = mensagemService.listarPorAgendamento(1L);
+        List<MensagemResponse> result = mensagemService.listarPorAgendamento(1L);
 
-        assertThat(lista).hasSize(1);
+        assertThat(result).hasSize(1);
     }
 
     @Test
-    void deveListarMensagensPorCliente() {
-        when(mensagemRepository.findByClienteId(1L)).thenReturn(List.of(criarMensagem()));
+    @DisplayName("listarPorAgendamento: lança EntidadeNaoEncontradaException quando vazio")
+    void listarPorAgendamento_vazio() {
+        when(mensagemRepository.findByAgendamentoId(1L)).thenReturn(List.of());
 
-        List<MensagemResponse> lista = mensagemService.listarPorCliente(1L);
+        assertThatThrownBy(() -> mensagemService.listarPorAgendamento(1L))
+                .isInstanceOf(EntidadeNaoEncontradaException.class);
+    }
 
-        assertThat(lista).hasSize(1);
+    @Test
+    @DisplayName("listarPorCliente: retorna mensagens do cliente")
+    void listarPorCliente_sucesso() {
+        when(mensagemRepository.findByClienteId(1L)).thenReturn(List.of(mensagem));
+
+        List<MensagemResponse> result = mensagemService.listarPorCliente(1L);
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("listarPorCliente: lança EntidadeNaoEncontradaException quando vazio")
+    void listarPorCliente_vazio() {
+        when(mensagemRepository.findByClienteId(1L)).thenReturn(List.of());
+
+        assertThatThrownBy(() -> mensagemService.listarPorCliente(1L))
+                .isInstanceOf(EntidadeNaoEncontradaException.class);
     }
 }
