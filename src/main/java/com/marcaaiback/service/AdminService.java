@@ -131,7 +131,7 @@ public class AdminService {
 
         tokenRepository.save(reset);
 
-        String link = "http://localhost:5173/receive-code?token=" + token;
+        String link = "http://localhost:5173/receber-codigo?token=" + token;
 
         emailService.enviar(
                 admin.getEmail(),
