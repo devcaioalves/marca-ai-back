@@ -29,6 +29,11 @@ public class HorarioDisponivelController {
         return ResponseEntity.ok(horarioDisponivelService.buscarPorId(id));
     }
 
+    @GetMapping("listar-horarios")
+    public ResponseEntity<List<HorarioDisponivelResponse>> listarTodos(){
+        return ResponseEntity.ok(horarioDisponivelService.listarTodos());
+    }
+
     @GetMapping("/listar-horario-data")
     public ResponseEntity<List<HorarioDisponivelResponse>> listarPorData(
             @RequestParam @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate data) {

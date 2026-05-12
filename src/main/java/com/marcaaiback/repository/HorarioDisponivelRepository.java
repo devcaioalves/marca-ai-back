@@ -38,4 +38,7 @@ public interface HorarioDisponivelRepository extends JpaRepository<HorarioDispon
 
     // buscar horarios de uma data e de um horario iniciante específico
     Optional<HorarioDisponivel> findByDataAndHoraInicio(LocalDate data, LocalTime horaInicio);
+
+    // listar por data e hora de início crescente
+    List<HorarioDisponivel> findAllByOrderByDataAscHoraInicioAsc();
 }

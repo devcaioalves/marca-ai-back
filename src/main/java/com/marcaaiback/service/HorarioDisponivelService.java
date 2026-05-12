@@ -56,6 +56,13 @@ public class HorarioDisponivelService {
         return toResponse(buscarEntidade(id));
     }
 
+    public List<HorarioDisponivelResponse> listarTodos(){
+        return horarioDisponivelRepository.findAllByOrderByDataAscHoraInicioAsc()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<HorarioDisponivelResponse> listarPorData(LocalDate data) {
 
         List<HorarioDisponivel> horarios = horarioDisponivelRepository.findByDataWithAgendamentos(data);
