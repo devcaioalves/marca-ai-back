@@ -66,6 +66,13 @@ public class AgendamentoService {
         return toResponse(buscarEntidade(id));
     }
 
+    public List<AgendamentoResponse> listarTodos() {
+        return agendamentoRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<AgendamentoResponse> listarPorData(LocalDate data) {
         return agendamentoRepository.findByData(data)
                 .stream()

@@ -30,6 +30,11 @@ public class AgendamentoController {
         return ResponseEntity.ok(agendamentoService.buscarPorId(id));
     }
 
+    @GetMapping("/listar-agendamentos")
+    public ResponseEntity<List<AgendamentoResponse>> listarTodos() {
+        return ResponseEntity.ok(agendamentoService.listarTodos());
+    }
+
     @GetMapping("/listar-por-data/{data}")
     public ResponseEntity<List<AgendamentoResponse>> listarPorData(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
