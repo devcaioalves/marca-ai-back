@@ -56,13 +56,25 @@ public class AdminService {
         return toResponse(buscarEntidade());
     }
 
-    public AdminResponse atualizar(AdminRequest request) {
+    public AdminResponse atualizar(AdminUpdateRequest request) {
         Admin admin = buscarEntidade();
         admin.setNome(request.getNome());
         admin.setTelefone(request.getTelefone());
         admin.setEmail(request.getEmail());
 
-        validarSenha(request.getSenha(), request.getConfirmaSenha());
+        if(request.getEndereco() != null){
+            Endereco endereco = admin.getEndereco();
+
+            endereco.setRua(request.getEndereco().getRua());
+            endereco.setNumero(request.getEndereco().getNumero());
+            endereco.setBairro(request.getEndereco().getBairro());
+            endereco.setCep(request.getEndereco().getCep());
+
+            ViaCEPResponse viaCep = viaCEPService.buscarEnderecoPeloCEP(request.getEndereco().getCep());
+
+            endereco.setCidade(viaCep.getLocalidade());
+            endereco.setEstado(viaCep.getUf());
+        }
 
         return toResponse(adminRepository.save(admin));
     }

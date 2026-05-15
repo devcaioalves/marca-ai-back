@@ -2,6 +2,7 @@ package com.marcaaiback.controller;
 
 import com.marcaaiback.model.dto.admin.AdminRequest;
 import com.marcaaiback.model.dto.admin.AdminResponse;
+import com.marcaaiback.model.dto.admin.AdminUpdateRequest;
 import com.marcaaiback.model.dto.admin.AuthResponse;
 import com.marcaaiback.model.dto.admin.login.LoginRequest;
 import com.marcaaiback.model.dto.admin.senha.AlterarSenhaRequest;
@@ -31,7 +32,7 @@ public class AdminController {
     }
 
     @PutMapping("/atualizar-admin")
-    public ResponseEntity<AdminResponse> atualizar(@RequestBody @Valid AdminRequest request) {
+    public ResponseEntity<AdminResponse> atualizar(@RequestBody @Valid AdminUpdateRequest request) {
         return ResponseEntity.ok(adminService.atualizar(request));
     }
 

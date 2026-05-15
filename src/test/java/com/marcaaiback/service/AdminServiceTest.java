@@ -153,8 +153,8 @@ class AdminServiceTest {
     @Test
     @DisplayName("atualizar: sucesso com dados válidos")
     void atualizar_sucesso() {
-        AdminRequest request = new AdminRequest("Novo Nome", "81988888888", "novo@email.com",
-                null, "novaSenha1", "novaSenha1");
+        AdminUpdateRequest request = new AdminUpdateRequest("Novo Nome", "81988888888", "novo@email.com",
+                null);
 
         when(adminRepository.findAll()).thenReturn(List.of(adminBase));
         when(adminRepository.save(any())).thenReturn(adminBase);
