@@ -27,6 +27,11 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.buscarPorId(id));
     }
 
+    @GetMapping("/buscar-por-nome-ou-telefone/{termo}")
+    public ResponseEntity<List<ClienteResponse>> buscarPorNomeOuTelefone(@PathVariable String termo) {
+        return ResponseEntity.ok(clienteService.buscarPorNomeOuTelefone(termo));
+    }
+
     @GetMapping("/buscar-pelo-telefone/{telefone}")
     public ResponseEntity<ClienteResponse> buscarPorTelefone(@PathVariable String telefone) {
         System.out.println("Telefone recebido: " + telefone);

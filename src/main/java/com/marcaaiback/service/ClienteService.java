@@ -38,6 +38,21 @@ public class ClienteService {
         return toResponse(buscarEntidade(id));
     }
 
+    public List<ClienteResponse> buscarPorNomeOuTelefone(String termo) {
+        List<Cliente> clientes = clienteRepository
+                .findByNomeContainingIgnoreCaseOrTelefoneContaining(
+                        termo,
+                        termo
+                );
+        if(clientes.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Nenhum cliente encontrado.");
+        }
+
+        return clientes.stream()
+                .map(this:: toResponse)
+                .collect(Collectors.toList());
+    }
+
     public ClienteResponse buscarPorTelefone(String telefone) {
         String telefonePadronizado = clienteValidator.validarEPadronizarTelefone(telefone);
         System.out.println("Telefone padronizado: " + telefonePadronizado);
