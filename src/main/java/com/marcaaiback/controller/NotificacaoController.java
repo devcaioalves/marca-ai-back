@@ -28,6 +28,11 @@ public class NotificacaoController {
         return ResponseEntity.ok(notificacaoService.listarPorAgendamento(agendamentoId));
     }
 
+    @GetMapping("/listar-notificacoes-agendamentos")
+    public ResponseEntity<List<NotificacaoResponse>> listarTodasPorAgendamento() {
+        return ResponseEntity.ok(notificacaoService.listarTodasPorAgendamento());
+    }
+
     @GetMapping("/listar-notificacao-status/{status}")
     public ResponseEntity<List<NotificacaoResponse>> listarPorStatus(@PathVariable StatusNotificacao status) {
         return ResponseEntity.ok(notificacaoService.listarPorStatus(status));

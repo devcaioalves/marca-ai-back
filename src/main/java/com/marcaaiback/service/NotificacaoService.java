@@ -55,6 +55,17 @@ public class NotificacaoService {
                 .collect(Collectors.toList());
     }
 
+    public List<NotificacaoResponse> listarTodasPorAgendamento() {
+        List<Notificacao> notificacoes = notificacaoRepository.findAll();
+
+        if (notificacoes.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Não há notificações.");
+        }
+        return notificacoes.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<NotificacaoResponse> listarPorStatus(StatusNotificacao status) {
         List<Notificacao> notificacoes = notificacaoRepository.findByStatusNotificacao(status);
         if (notificacoes.isEmpty()) {

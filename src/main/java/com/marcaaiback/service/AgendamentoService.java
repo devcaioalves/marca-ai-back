@@ -1,5 +1,6 @@
 package com.marcaaiback.service;
 
+import com.marcaaiback.exception.EntidadeNaoEncontradaException;
 import com.marcaaiback.model.dto.admin.EnderecoResponse;
 import com.marcaaiback.model.dto.agendamento.AgendamentoRequest;
 import com.marcaaiback.model.dto.agendamento.AgendamentoResponse;
@@ -67,15 +68,25 @@ public class AgendamentoService {
     }
 
     public List<AgendamentoResponse> listarTodos() {
-        return agendamentoRepository.findAll()
-                .stream()
+        List<Agendamento> agendamentos = agendamentoRepository.findAll();
+
+        if (agendamentos.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Nenhum agendamento disponível encontrado.");
+        }
+
+        return agendamentos.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     public List<AgendamentoResponse> listarPorData(LocalDate data) {
-        return agendamentoRepository.findByData(data)
-                .stream()
+        List<Agendamento> agendamentos = agendamentoRepository.findByData(data);
+
+        if (agendamentos.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Nenhum agendamento disponível encontrado para essa data.");
+        }
+
+        return agendamentos.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }

@@ -35,9 +35,9 @@ public class AgendamentoController {
         return ResponseEntity.ok(agendamentoService.listarTodos());
     }
 
-    @GetMapping("/listar-por-data/{data}")
+    @GetMapping("/listar-agendamento-data")
     public ResponseEntity<List<AgendamentoResponse>> listarPorData(
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
+            @RequestParam @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate data) {
         return ResponseEntity.ok(agendamentoService.listarPorData(data));
     }
 

@@ -42,7 +42,7 @@ public class SecurityConfig {
 
                         // Endpoints públicos de agendamento (consulta)
                         .requestMatchers(HttpMethod.GET, "/api/agendamentos/buscar-agendamento/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/agendamentos/listar-por-data/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/agendamentos/listar-agendamento-data/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/agendamentos/listar-por-cliente/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/agendamentos/listar-por-status/**").permitAll()
 
@@ -80,6 +80,7 @@ public class SecurityConfig {
 
                         // Endpoints públicos de notificação (consulta)
                         .requestMatchers(HttpMethod.GET, "/api/notificacoes/listar-notificacao-agendamento/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/notificacoes/listar-notificacoes-agendamentos").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/notificacoes/listar-notificacao-status/**").permitAll()
 
                         // Endpoints restritos de notificação (CRUD)

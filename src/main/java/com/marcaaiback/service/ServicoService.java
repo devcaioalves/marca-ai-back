@@ -44,8 +44,13 @@ public class ServicoService {
     }
 
     public List<ServicoResponse> listarTodos() {
-        return servicoRepository.findAllByOrderByNomeAsc()
-                .stream()
+        List<Servico> servicos = servicoRepository.findAllByOrderByNomeAsc();
+
+        if (servicos.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Não existem serviços cadastrados.");
+        }
+
+        return servicos.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }

@@ -57,8 +57,13 @@ public class HorarioDisponivelService {
     }
 
     public List<HorarioDisponivelResponse> listarTodos(){
-        return horarioDisponivelRepository.findAllByOrderByDataAscHoraInicioAsc()
-                .stream()
+        List<HorarioDisponivel> horarios = horarioDisponivelRepository.findAllByOrderByDataAscHoraInicioAsc();
+
+        if (horarios.isEmpty()) {
+            throw new EntidadeNaoEncontradaException("Nenhum horário disponível encontrado.");
+        }
+
+        return horarios.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -73,7 +78,7 @@ public class HorarioDisponivelService {
 
         return horarios.stream()
                 .map(this::toResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public List<HorarioDisponivelResponse> listarDisponiveisPorData(LocalDate data) {
