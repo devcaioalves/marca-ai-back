@@ -91,6 +91,13 @@ public class ClienteService {
         clienteRepository.delete(cliente);
     }
 
+    public Cliente buscarClientePorTelefoneEntidade(String telefone) {
+
+        return clienteRepository.findByTelefone(telefone)
+                .orElseThrow(() ->
+                        new EntidadeNaoEncontradaException("Cliente não encontrado."));
+    }
+
     // método interno reutilizável pelos outros services
     public Cliente buscarEntidade(Long id) {
         return clienteRepository.findById(id)

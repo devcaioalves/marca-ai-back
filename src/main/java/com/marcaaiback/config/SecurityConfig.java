@@ -103,6 +103,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/recuperarsenha/redefinir-senha").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/recuperarsenha/validar-token").permitAll()
 
+                        // Endpoints públicos de conversa whatsapp (consulta)
+                        .requestMatchers(HttpMethod.GET, "/api/conversas/buscar-conversa/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/conversas/buscar-por-telefone/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/conversas/listar-conversas").permitAll()
+
+                        // Endpoints restritos de conversa whatsapp (CRUD)
+                        .requestMatchers(HttpMethod.POST, "/api/conversas/criar-conversa").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/conversas/atualizar-conversa/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/conversas/deletar-conversa/**").authenticated()
+
                         // Swagger e docs
                         .requestMatchers(
                                 "/v3/api-docs",

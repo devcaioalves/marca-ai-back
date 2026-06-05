@@ -133,6 +133,8 @@
     </dependencies>
 
     <build>
+        <finalName>app</finalName>
+
         <plugins>
 
             <!-- Build -->
