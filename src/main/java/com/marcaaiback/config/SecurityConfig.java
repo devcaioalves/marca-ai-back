@@ -113,6 +113,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/conversas/atualizar-conversa/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/conversas/deletar-conversa/**").authenticated()
 
+                        // Endpoint do webhook público
+                        .requestMatchers(HttpMethod.POST, "/api/whatsapp/webhook/messages").permitAll()
+
                         // Swagger e docs
                         .requestMatchers(
                                 "/v3/api-docs",

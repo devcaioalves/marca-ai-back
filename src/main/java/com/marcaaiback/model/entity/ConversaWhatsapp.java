@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -28,10 +30,22 @@ public class ConversaWhatsapp {
 
     private Long horarioId;
 
+    private Long agendamentoId;
+
     private LocalDate dataEscolhida;
+
+    private LocalTime horaEscolhida;
+
+    private LocalTime horaInicioEscolhida;
+
+    private LocalTime horaFimEscolhida;
 
     @Column(nullable = false)
     private LocalDateTime ultimaInteracao;
+
+    private Boolean atendimentoHumano;
+
+    private Boolean ativa;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente", nullable = false)

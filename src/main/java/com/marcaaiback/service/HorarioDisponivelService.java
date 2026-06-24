@@ -95,7 +95,7 @@ public class HorarioDisponivelService {
 
             List<Agendamento> agendamentos = horario.getAgendamentos().stream()
                     .filter(a -> a.getStatusAgendamento() == StatusAgendamento.AGENDADO
-                            || a.getStatusAgendamento() == StatusAgendamento.CONFIRMADO)
+                            || a.getStatusAgendamento() == StatusAgendamento.CONFIRMADO || a.getStatusAgendamento() == StatusAgendamento.REMARCADO)
                     .sorted(Comparator.comparing(Agendamento::getHoraInicio))
                     .toList();
 
@@ -217,13 +217,43 @@ public class HorarioDisponivelService {
         return response;
     }
 
+    // METODO PARA O CHATBOT GERAR HORARIOS PARA AGENDAMENTO
+    public List<HorarioDisponivelResponse> gerarHorariosAgendaveis(LocalDate data, Integer duracaoServico){
+        List<HorarioDisponivelResponse> intervalos = listarDisponiveisPorData(data);
+
+        List<HorarioDisponivelResponse> resultado = new ArrayList<>();
+
+        for(HorarioDisponivelResponse intervalo : intervalos){
+            LocalTime inicio = intervalo.getHoraInicio();
+
+            while(!inicio.plusMinutes(duracaoServico).isAfter(intervalo.getHoraFim())){
+                HorarioDisponivelResponse horario = new HorarioDisponivelResponse();
+                horario.setId(intervalo.getId());
+                horario.setData(intervalo.getData());
+                horario.setHoraInicio(inicio);
+                horario.setHoraFim(inicio.plusMinutes(duracaoServico));
+                horario.setDisponivel(true);
+
+                horario.setAgendamentos(List.of());
+                resultado.add(horario);
+                inicio = inicio.plusMinutes(duracaoServico);
+            }
+        }
+
+        if(resultado.isEmpty()){
+            throw new EntidadeNaoEncontradaException("Nenhum horário disponível.");
+        }
+
+        return resultado;
+    }
+
     private HorarioDisponivelResponse criarIntervaloResponse(
             HorarioDisponivel base,
             LocalTime inicio,
             LocalTime fim
     ) {
         HorarioDisponivelResponse response = new HorarioDisponivelResponse();
-
+        response.setId(base.getId());
         response.setData(base.getData());
         response.setHoraInicio(inicio);
         response.setHoraFim(fim);

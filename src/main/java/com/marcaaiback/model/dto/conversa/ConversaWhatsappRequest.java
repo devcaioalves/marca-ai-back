@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -22,6 +23,12 @@ public class ConversaWhatsappRequest {
     private Long servicoId;
 
     private Long horarioId;
+
+    private LocalTime horaInicioEscolhida;
+
+    private LocalTime horaFimEscolhida;
+
+    private Long agendamentoId;
 
     private LocalDate dataEscolhida;
 
