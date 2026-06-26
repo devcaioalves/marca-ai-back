@@ -247,7 +247,11 @@ public class WhatsappChatbotService {
         List<HorarioDisponivelResponse> horarios;
 
         try{
-            horarios = horarioDisponivelService.gerarHorariosAgendaveis(conversa.getDataEscolhida(), servico.getDuracao());
+            horarios = horarioDisponivelService.gerarHorariosAgendaveis(
+                    conversa.getDataEscolhida(),
+                    servico.getDuracao()
+            );
+
         }catch (Exception e){
             conversa.setEstadoConversa(ESCOLHENDO_DATA);
             return responder(conversa, "Não há horários disponíveis para essa data.", "Informe novamente uma nova data no formato dd/mm/aaaa.");

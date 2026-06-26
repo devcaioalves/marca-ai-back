@@ -24,7 +24,7 @@ public class Agendamento {
     @Column(nullable = false)
     private StatusAgendamento statusAgendamento;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DATE")
     private LocalDate data;
 
     @Column(nullable = false)

@@ -82,7 +82,6 @@ public class HorarioDisponivelService {
     }
 
     public List<HorarioDisponivelResponse> listarDisponiveisPorData(LocalDate data) {
-
         List<HorarioDisponivel> horarios = horarioDisponivelRepository.findByDataWithAgendamentos(data);
 
         if (horarios.isEmpty()) {
@@ -243,7 +242,6 @@ public class HorarioDisponivelService {
         if(resultado.isEmpty()){
             throw new EntidadeNaoEncontradaException("Nenhum horário disponível.");
         }
-
         return resultado;
     }
 

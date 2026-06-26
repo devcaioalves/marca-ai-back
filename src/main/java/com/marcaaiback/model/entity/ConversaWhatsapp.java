@@ -32,6 +32,7 @@ public class ConversaWhatsapp {
 
     private Long agendamentoId;
 
+    @Column(columnDefinition = "DATE")
     private LocalDate dataEscolhida;
 
     private LocalTime horaEscolhida;

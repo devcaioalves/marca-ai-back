@@ -20,7 +20,7 @@ public class HorarioDisponivel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DATE")
     private LocalDate data;
 
     @Column(nullable = false)
