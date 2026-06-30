@@ -19,6 +19,11 @@ public class ClienteValidator {
 
         String telefoneFormatado = telefone.replaceAll("\\D", "");
 
+        // Adiciona o 9 automaticamente se vier com 10 dígitos (números antigos)
+        if (telefoneFormatado.length() == 10) {
+            telefoneFormatado = telefoneFormatado.substring(0, 2) + "9" + telefoneFormatado.substring(2);
+        }
+
         if (telefoneFormatado.length() != 11) {
             throw new OperacaoNaoPermitidaException("O telefone deve conter 11 dígitos (DDD + número).");
         }
@@ -29,7 +34,6 @@ public class ClienteValidator {
             throw new OperacaoNaoPermitidaException("DDD inválido: " + ddd);
         }
 
-        // celular brasileiro sempre começa com 9 após o DDD
         if (telefoneFormatado.charAt(2) != '9') {
             throw new OperacaoNaoPermitidaException("Número de celular inválido. Deve começar com 9 após o DDD.");
         }
