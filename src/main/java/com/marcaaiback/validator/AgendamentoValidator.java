@@ -76,18 +76,21 @@ public class AgendamentoValidator {
         LocalDateTime dataHoraAgendamento = LocalDateTime.of(data, horaInicio);
         LocalDateTime dataHoraAtual =  LocalDateTime.now();
 
-        LocalDateTime limiteMinimo = dataHoraAtual.plusMinutes(120);
+        LocalDateTime limiteMinimo = dataHoraAtual.plusMinutes(30);
 
         if(dataHoraAgendamento.isBefore(limiteMinimo)){
-            throw new OperacaoNaoPermitidaException("O agendamento deve ser feito com pelo menos 2 horas de antecedência.");
+            throw new OperacaoNaoPermitidaException("O agendamento deve ser feito com pelo menos 30 minutos de antecedência.");
         }
     }
 
-    public void validarConflito(HorarioDisponivel horario, LocalTime horaInicio, LocalTime horaFim) {
-
+    public void validarConflito(HorarioDisponivel horario, LocalTime horaInicio, LocalTime horaFim, Long agendamentoIgnorar) {
         List<Agendamento> agendamentos = horario.getAgendamentos();
 
         for (Agendamento agendamento : agendamentos) {
+
+            if(agendamentoIgnorar != null && agendamento.getId().equals(agendamentoIgnorar)){
+                continue;
+            }
 
             if (agendamento.getStatusAgendamento() == StatusAgendamento.CANCELADO) {
                 continue;
@@ -100,6 +103,10 @@ public class AgendamentoValidator {
                 throw new OperacaoNaoPermitidaException("Horário indisponível.");
             }
         }
+    }
+
+    public void validarConflito(HorarioDisponivel horario, LocalTime horaInicio, LocalTime horaFim) {
+        validarConflito(horario, horaInicio, horaFim, null);
     }
 
     public void validarServicoAtivo(Servico servico) {

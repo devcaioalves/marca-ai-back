@@ -113,6 +113,15 @@ public class AgendamentoService {
         return toResponse(agendamentoRepository.save(agendamento));
     }
 
+    public List<AgendamentoResponse> listarReagendaveisPorCliente(Long  clienteId) {
+        List<StatusAgendamento> status = List.of(StatusAgendamento.AGENDADO, StatusAgendamento.CONFIRMADO, StatusAgendamento.REMARCADO);
+
+        return agendamentoRepository.findByClienteIdAndStatusAgendamentoIn(clienteId, status)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public AgendamentoResponse remarcar(Long id, Long novoHorarioId) {
 
         Agendamento agendamento = buscarEntidade(id);
@@ -127,7 +136,7 @@ public class AgendamentoService {
         LocalTime novaHoraFim = calcularHoraFim(novaHoraInicio, servico);
 
         agendamentoValidator.validarHorarioDentroDoIntervalo(novoHorario, novaHoraInicio, novaHoraFim);
-        agendamentoValidator.validarConflito(novoHorario, novaHoraInicio, novaHoraFim);
+        agendamentoValidator.validarConflito(novoHorario, novaHoraInicio, novaHoraFim, agendamento.getId());
         agendamentoValidator.validarAntecedenciaMinima(novoHorario.getData(), novaHoraInicio);
         agendamentoValidator.validarServicoAtivo(servico);
 

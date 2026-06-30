@@ -25,4 +25,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
 
     // buscar agendamentos de uma data específica
     List<Agendamento> findAllByData(LocalDate data);
+
+    // buscar os agendamentos de um cliente pelo status
+    List<Agendamento> findByClienteIdAndStatusAgendamentoIn(Long clienteId, List<StatusAgendamento> status);
 }

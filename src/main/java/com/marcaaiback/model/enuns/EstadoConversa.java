@@ -20,6 +20,7 @@ public enum EstadoConversa {
     ESCOLHENDO_NOVA_DATA("Escolhendo Nova Data"),
     ESCOLHENDO_NOVO_HORARIO("Escolhendo Nova Horario"),
     CONFIRMANDO_REAGENDAMENTO("Reagendando Confirmacao"),
+    REAGENDAMENTO_SEM_DISPONIBILIDADE("Reagendamentos Sem Disponibilidade"),
 
     CANCELANDO_ESCOLHENDO_AGENDAMENTO("Cancelando Escolhendo Agendamento"),
     CONFIRMANDO_CANCELAMENTO("Cancelando Cancelamento"),

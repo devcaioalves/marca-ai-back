@@ -80,7 +80,7 @@ public class WhatsappChatbotService {
             case ESCOLHENDO_NOVA_DATA -> tratarEscolhendoNovaData(conversa, texto);
             case ESCOLHENDO_NOVO_HORARIO -> tratarEscolhendoNovoHorario(conversa, texto);
             case CONFIRMANDO_REAGENDAMENTO -> tratarConfirmandoReagendamento(conversa, texto);
-
+            case REAGENDAMENTO_SEM_DISPONIBILIDADE -> tratarReagendamentoSemDisponibilidade(conversa, texto);
             case CANCELANDO_ESCOLHENDO_AGENDAMENTO -> tratarCancelandoEscolhendoAgendamento(conversa, texto);
             case CONFIRMANDO_CANCELAMENTO -> tratarConfirmandoCancelamento(conversa, texto);
             case POS_CANCELAMENTO -> tratarPosCancelamento(conversa, texto);
@@ -428,7 +428,7 @@ public class WhatsappChatbotService {
 
     // FLUXO DE REAGENDAMENTO
     private WhatsappWebhookResponse iniciarReagendamento(ConversaWhatsapp conversa) {
-        List<AgendamentoResponse> agendamentos = agendamentoService.listarPorCliente(conversa.getCliente().getId());
+        List<AgendamentoResponse> agendamentos = agendamentoService.listarReagendaveisPorCliente(conversa.getCliente().getId());
 
         if (agendamentos.isEmpty()) {
             conversa.setEstadoConversa(PERGUNTANDO_FINALIZAR);
@@ -442,8 +442,7 @@ public class WhatsappChatbotService {
     }
 
     private WhatsappWebhookResponse tratarReagendandoEscolhendoAgendamento(ConversaWhatsapp conversa, String texto) {
-
-        List<AgendamentoResponse> agendamentos = agendamentoService.listarPorCliente(conversa.getCliente().getId());
+        List<AgendamentoResponse> agendamentos = agendamentoService.listarReagendaveisPorCliente(conversa.getCliente().getId());
 
         if (!validator.validarOpcao(texto, 1, agendamentos.size())) {
             return respostaInvalida(conversa, montarListaAgendamentos("Qual agendamento deseja reagendar?", agendamentos));
@@ -473,14 +472,46 @@ public class WhatsappChatbotService {
         try {
             horarios = horarioDisponivelService.gerarHorariosAgendaveis(data, servico.getDuracao());
         } catch (RuntimeException e) {
-            conversa.setEstadoConversa(PERGUNTANDO_FINALIZAR);
-            return responder(conversa, "Não há horários disponíveis para essa data.", messages.perguntarFinalizar());
+            conversa.setEstadoConversa(REAGENDAMENTO_SEM_DISPONIBILIDADE);
+            return responder(conversa, "Não há horários disponíveis para essa data.", """
+                            O que deseja fazer?
+
+                            1- Informar outra data
+                            2- Voltar ao menu
+                            3- Finalizar atendimento """);
         }
 
         conversa.setDataEscolhida(data);
         conversa.setEstadoConversa(EstadoConversa.ESCOLHENDO_NOVO_HORARIO);
 
         return responder(conversa, montarListaHorarios(horarios));
+    }
+
+    private WhatsappWebhookResponse tratarReagendamentoSemDisponibilidade(ConversaWhatsapp conversa, String texto) {
+        if (!validator.validarOpcao(texto, 1, 3)) {
+            return respostaInvalida(conversa, """
+                O que deseja fazer?
+
+                1- Informar outra data
+                2- Voltar ao menu
+                3- Finalizar atendimento
+                """);
+        }
+
+        return switch (validator.opcao(texto)) {
+            case 1 -> {
+                conversa.setEstadoConversa(EstadoConversa.ESCOLHENDO_NOVA_DATA);
+                yield responder(conversa,
+                        "Informe a nova data no formato dd/MM/yyyy.");
+            }
+            case 2 -> voltarAoMenu(conversa);
+            case 3 -> {
+                conversa.setEstadoConversa(EstadoConversa.FINALIZADO);
+                yield responder(conversa,
+                        "Atendimento finalizado. Obrigada pelo contato.");
+            }
+            default -> voltarAoMenu(conversa);
+        };
     }
 
     private WhatsappWebhookResponse tratarEscolhendoNovoHorario(ConversaWhatsapp conversa, String texto) {

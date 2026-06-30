@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -219,13 +220,22 @@ public class HorarioDisponivelService {
     // METODO PARA O CHATBOT GERAR HORARIOS PARA AGENDAMENTO
     public List<HorarioDisponivelResponse> gerarHorariosAgendaveis(LocalDate data, Integer duracaoServico){
         List<HorarioDisponivelResponse> intervalos = listarDisponiveisPorData(data);
-
         List<HorarioDisponivelResponse> resultado = new ArrayList<>();
+
+        LocalDateTime agora = LocalDateTime.now();
+        LocalDateTime limiteMinimo = agora.plusMinutes(30);
 
         for(HorarioDisponivelResponse intervalo : intervalos){
             LocalTime inicio = intervalo.getHoraInicio();
 
             while(!inicio.plusMinutes(duracaoServico).isAfter(intervalo.getHoraFim())){
+                LocalDateTime dataHora = LocalDateTime.of(data, inicio);
+
+                if(data.isEqual(LocalDate.now()) && dataHora.isBefore(limiteMinimo)){
+                    inicio = inicio.plusMinutes(duracaoServico);
+                    continue;
+                }
+
                 HorarioDisponivelResponse horario = new HorarioDisponivelResponse();
                 horario.setId(intervalo.getId());
                 horario.setData(intervalo.getData());
