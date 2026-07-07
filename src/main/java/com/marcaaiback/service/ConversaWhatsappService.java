@@ -60,6 +60,8 @@ public class ConversaWhatsappService {
 
         ConversaWhatsapp conversaWhatsapp = new ConversaWhatsapp();
         conversaWhatsapp.setEstadoConversa(EstadoConversa.INICIO_CONVERSA);
+        conversaWhatsapp.setAtendimentoHumano(false);
+        conversaWhatsapp.setAtiva(true);
         conversaWhatsapp.setUltimaInteracao(LocalDateTime.now());
         conversaWhatsapp.setCliente(cliente);
 
@@ -83,6 +85,9 @@ public class ConversaWhatsappService {
         conversaWhatsapp.setDataEscolhida(null);
         conversaWhatsapp.setHoraInicioEscolhida(null);
         conversaWhatsapp.setHoraFimEscolhida(null);
+
+        conversaWhatsapp.setAtendimentoHumano(false);
+
         conversaWhatsapp.setUltimaInteracao(LocalDateTime.now());
 
         return conversaWhatsappRepository.save(conversaWhatsapp);

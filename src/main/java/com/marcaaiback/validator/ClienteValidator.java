@@ -13,29 +13,39 @@ public class ClienteValidator {
     private final ClienteRepository clienteRepository;
 
     public String validarEPadronizarTelefone(String telefone) {
+
         if (telefone == null || telefone.trim().isEmpty()) {
             throw new OperacaoNaoPermitidaException("O telefone não pode ser vazio.");
         }
 
         String telefoneFormatado = telefone.replaceAll("\\D", "");
 
-        // Adiciona o 9 automaticamente se vier com 10 dígitos (números antigos)
+        if (telefoneFormatado.startsWith("55")) {
+            telefoneFormatado = telefoneFormatado.substring(2);
+        }
+
         if (telefoneFormatado.length() == 10) {
-            telefoneFormatado = telefoneFormatado.substring(0, 2) + "9" + telefoneFormatado.substring(2);
+            telefoneFormatado =
+                    telefoneFormatado.substring(0, 2)
+                            + "9"
+                            + telefoneFormatado.substring(2);
         }
 
         if (telefoneFormatado.length() != 11) {
-            throw new OperacaoNaoPermitidaException("O telefone deve conter 11 dígitos (DDD + número).");
+            throw new OperacaoNaoPermitidaException(
+                    "O telefone deve conter DDD + número.");
         }
 
         String ddd = telefoneFormatado.substring(0, 2);
         int dddNumero = Integer.parseInt(ddd);
+
         if (dddNumero < 11 || dddNumero > 99) {
             throw new OperacaoNaoPermitidaException("DDD inválido: " + ddd);
         }
 
         if (telefoneFormatado.charAt(2) != '9') {
-            throw new OperacaoNaoPermitidaException("Número de celular inválido. Deve começar com 9 após o DDD.");
+            throw new OperacaoNaoPermitidaException(
+                    "Número de celular inválido. Deve começar com 9 após o DDD.");
         }
 
         return "55" + telefoneFormatado;

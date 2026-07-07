@@ -26,4 +26,6 @@ public class WhatsappWebhookRequest {
     private String mensagemId;
 
     private TipoMensagemWhatsapp tipoMensagemWhatsapp;
+
+    private Boolean fromMe;
 }

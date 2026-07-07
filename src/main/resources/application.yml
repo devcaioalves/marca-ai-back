@@ -51,3 +51,7 @@ feign:
 
 jwt:
   secret: ${JWT_SECRET}
+
+n8n:
+  url:
+    notificacao-admin: ${N8N_NOTIFICACAO_ADMIN_URL}

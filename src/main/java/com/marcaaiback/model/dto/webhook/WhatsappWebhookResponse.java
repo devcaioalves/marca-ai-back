@@ -26,4 +26,8 @@ public class WhatsappWebhookResponse {
     public static WhatsappWebhookResponse atendimentoHumano(String telefone, List<String> respostas){
         return new WhatsappWebhookResponse(telefone, respostas, true);
     }
+
+    public static WhatsappWebhookResponse semResposta() {
+        return new WhatsappWebhookResponse(null, List.of(), false);
+    }
 }
