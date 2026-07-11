@@ -30,6 +30,8 @@ public class AgendamentoResponse {
     private Long servicoId;
     private String servicoNome;
 
+    private String telefoneCliente;
+
     // apenas dados necessários do horário
     private Long horarioDisponivelId;
     private EnderecoResponse endereco;

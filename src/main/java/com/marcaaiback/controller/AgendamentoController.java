@@ -7,6 +7,7 @@ import com.marcaaiback.service.AgendamentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +60,17 @@ public class AgendamentoController {
     @PatchMapping("/confirmar-agendamento/{id}")
     public ResponseEntity<AgendamentoResponse> confirmar(@PathVariable Long id) {
         return ResponseEntity.ok(agendamentoService.confirmar(id));
+    }
+
+    @GetMapping("/confirmar-pendentes")
+    public ResponseEntity<List<AgendamentoResponse>> listarPendentesConfirmacao() {
+        return ResponseEntity.ok(agendamentoService.listarPendentesConfirmacao());
+    }
+
+    @PostMapping("/confirmacao-enviada/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void marcarConfirmacaoEnviada(@PathVariable Long id) {
+        agendamentoService.marcarConfirmacaoEnviada(id);
     }
 
     @PatchMapping("/cancelar-agendamento/{id}")

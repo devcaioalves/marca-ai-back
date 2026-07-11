@@ -28,4 +28,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
 
     // buscar os agendamentos de um cliente pelo status
     List<Agendamento> findByClienteIdAndStatusAgendamentoIn(Long clienteId, List<StatusAgendamento> status);
+
+    // buscar os agendamentos com pendencia de confirmação
+    List<Agendamento> findByStatusAgendamentoInAndDataEnvioConfirmacaoIsNull(List<StatusAgendamento> status);
 }

@@ -2,8 +2,10 @@ package com.marcaaiback.service;
 
 import com.marcaaiback.exception.EntidadeNaoEncontradaException;
 import com.marcaaiback.model.dto.cliente.ClienteRequest;
+import com.marcaaiback.model.dto.conversa.ConfirmacaoAgendamentoResponse;
 import com.marcaaiback.model.dto.conversa.ConversaWhatsappRequest;
 import com.marcaaiback.model.dto.conversa.ConversaWhatsappResponse;
+import com.marcaaiback.model.entity.Agendamento;
 import com.marcaaiback.model.entity.Cliente;
 import com.marcaaiback.model.entity.ConversaWhatsapp;
 import com.marcaaiback.model.enuns.EstadoConversa;
@@ -27,6 +29,7 @@ public class ConversaWhatsappService {
     private final ConversaWhatsappValidator conversaWhatsappValidator;
     private final ClienteService clienteService;
     private final ClienteValidator clienteValidator;
+    private final AgendamentoService agendamentoService;
 
     public ConversaWhatsapp buscarOuCriarCliente(String telefone, String nomeCliente) {
         String telefonePadronizado = clienteValidator.validarEPadronizarTelefone(telefone);
@@ -98,6 +101,21 @@ public class ConversaWhatsappService {
         conversaWhatsapp.setUltimaInteracao(LocalDateTime.now());
 
         return conversaWhatsappRepository.save(conversaWhatsapp);
+    }
+
+    public ConfirmacaoAgendamentoResponse iniciarConfirmacaoAgendamento(Long agendamentoId){
+        Agendamento agendamento = agendamentoService.buscarEntidade(agendamentoId);
+
+        ConversaWhatsapp conversa = buscarOuCriarCliente(agendamento.getCliente().getTelefone(), agendamento.getCliente().getNome());
+
+        conversa.setAgendamentoId(agendamentoId);
+        conversa.setEstadoConversa(EstadoConversa.CONFIRMANDO_AGENDAMENTO_FUTURO);
+        conversa.setAtendimentoHumano(false);
+
+        salvarFluxo(conversa);
+
+        return new ConfirmacaoAgendamentoResponse(agendamento.getId(), agendamento.getCliente().getTelefone(), agendamento.getCliente().getNome(),
+        agendamento.getServico().getNome(), agendamento.getData(), agendamento.getHoraInicio());
     }
 
     public ConversaWhatsappResponse criar(ConversaWhatsappRequest request) {

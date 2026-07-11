@@ -45,6 +45,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/agendamentos/listar-agendamento-data/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/agendamentos/listar-por-cliente/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/agendamentos/listar-por-status/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/agendamentos/confirmar-pendentes/**").permitAll()
+
+                        // Endpoint públic de agendamento
+                        .requestMatchers(HttpMethod.POST, "/api/agendamentos/confirmacao-enviada/**").permitAll()
 
                         // Endpoints restritos de agendamentos (CRUD)
                         .requestMatchers(HttpMethod.POST, "/api/agendamentos/criar-agendamento").authenticated()
@@ -107,6 +111,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/conversas/buscar-conversa/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/conversas/buscar-por-telefone/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/conversas/listar-conversas").permitAll()
+
+                        // Endpoint público de conversa whatsapp (crud)
+                        .requestMatchers(HttpMethod.POST, "/api/conversas/iniciar-confirmacao/**").permitAll()
 
                         // Endpoints restritos de conversa whatsapp (CRUD)
                         .requestMatchers(HttpMethod.POST, "/api/conversas/criar-conversa").authenticated()

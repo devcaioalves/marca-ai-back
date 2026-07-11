@@ -14,7 +14,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +46,7 @@ public class AgendamentoService {
         LocalTime horaInicio = request.getHoraInicio();
         LocalTime horaFim = calcularHoraFim(horaInicio, servico);
 
-        // 🔥 VALIDAÇÃO REAL
+        // VALIDAÇÃO REAL
         agendamentoValidator.validarHorarioDentroDoIntervalo(horario, horaInicio, horaFim);
         agendamentoValidator.validarConflito(horario, horaInicio, horaFim); // ALTERADO
         agendamentoValidator.validarAntecedenciaMinima(horario.getData(), horaInicio);
@@ -58,7 +60,7 @@ public class AgendamentoService {
         agendamento.setData(horario.getData());
         agendamento.setHoraInicio(horaInicio);
         agendamento.setHoraFim(horaFim);
-        agendamento.setStatusAgendamento(StatusAgendamento.AGENDADO);
+        agendamento.setStatusAgendamento(agendamentoValidator.definirStatusInicial(horario.getData(), horaInicio));
 
         return toResponse(agendamentoRepository.save(agendamento));
     }
@@ -105,6 +107,25 @@ public class AgendamentoService {
                 .collect(Collectors.toList());
     }
 
+    //METODO PARA LISTAR OS AGENDAMENTOS QUE PRECISAM SER CONFIRMADOS
+    public List<AgendamentoResponse> listarPendentesConfirmacao(){
+        LocalDateTime dataHoraAtual = LocalDateTime.now();
+
+        List<StatusAgendamento> status = List.of(StatusAgendamento.AGENDADO, StatusAgendamento.REMARCADO);
+
+        return  agendamentoRepository
+                .findByStatusAgendamentoInAndDataEnvioConfirmacaoIsNull(status)
+                .stream()
+                .filter(agendamento -> {
+                    LocalDateTime dataHora = LocalDateTime.of(agendamento.getData(), agendamento.getHoraInicio());
+                    long minutos = Duration.between(dataHoraAtual, dataHora).toMinutes();
+
+                    return minutos > 0 && minutos <= 240;
+                })
+                .map(this::toResponse)
+                .toList();
+    }
+
     public AgendamentoResponse confirmar(Long id){
         Agendamento agendamento = buscarEntidade(id);
         agendamentoValidator.validarConfirmacao(agendamento);
@@ -113,11 +134,22 @@ public class AgendamentoService {
         return toResponse(agendamentoRepository.save(agendamento));
     }
 
+    @Transactional
+    public void marcarConfirmacaoEnviada(Long id){
+        Agendamento agendamento = buscarEntidade(id);
+        agendamento.setDataEnvioConfirmacao(LocalDateTime.now());
+        agendamentoRepository.save(agendamento);
+    }
+
     public List<AgendamentoResponse> listarReagendaveisPorCliente(Long  clienteId) {
         List<StatusAgendamento> status = List.of(StatusAgendamento.AGENDADO, StatusAgendamento.CONFIRMADO, StatusAgendamento.REMARCADO);
 
         return agendamentoRepository.findByClienteIdAndStatusAgendamentoIn(clienteId, status)
                 .stream()
+                .filter(agendamento -> {
+                    LocalDateTime dataHoraAgendamento = LocalDateTime.of(agendamento.getData(), agendamento.getHoraInicio());
+                    return dataHoraAgendamento.isAfter(LocalDateTime.now());
+                })
                 .map(this::toResponse)
                 .toList();
     }
@@ -186,6 +218,7 @@ public class AgendamentoService {
         response.setHoraFim(agendamento.getHoraFim());
         response.setClienteId(agendamento.getCliente().getId());
         response.setClienteNome(agendamento.getCliente().getNome());
+        response.setTelefoneCliente(agendamento.getCliente().getTelefone());
         response.setServicoId(agendamento.getServico().getId());
         response.setServicoNome(agendamento.getServico().getNome());
         response.setHorarioDisponivelId(agendamento.getHorarioDisponivel().getId());

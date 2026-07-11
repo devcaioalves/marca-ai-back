@@ -1,10 +1,12 @@
 package com.marcaaiback.controller;
 
+import com.marcaaiback.model.dto.conversa.ConfirmacaoAgendamentoResponse;
 import com.marcaaiback.model.dto.conversa.ConversaWhatsappRequest;
 import com.marcaaiback.model.dto.conversa.ConversaWhatsappResponse;
 import com.marcaaiback.service.ConversaWhatsappService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,6 +53,11 @@ public class ConversaWhatsappController {
             @RequestBody @Valid ConversaWhatsappRequest request
     ) {
         return ResponseEntity.ok(conversaWhatsappService.atualizar(id, request));
+    }
+
+    @PostMapping("/iniciar-confirmacao/{id}")
+    public ResponseEntity<ConfirmacaoAgendamentoResponse> iniciarConfirmacao(@PathVariable Long id){
+        return ResponseEntity.ok(conversaWhatsappService.iniciarConfirmacaoAgendamento(id));
     }
 
     @DeleteMapping("/deletar-conversa/{id}")

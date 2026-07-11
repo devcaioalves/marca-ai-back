@@ -95,7 +95,7 @@ public class HorarioDisponivelService {
 
             List<Agendamento> agendamentos = horario.getAgendamentos().stream()
                     .filter(a -> a.getStatusAgendamento() == StatusAgendamento.AGENDADO
-                            || a.getStatusAgendamento() == StatusAgendamento.CONFIRMADO || a.getStatusAgendamento() == StatusAgendamento.REMARCADO)
+                            || a.getStatusAgendamento() == StatusAgendamento.CONFIRMADO || a.getStatusAgendamento() == StatusAgendamento.REMARCADO || a.getStatusAgendamento() == StatusAgendamento.REALIZADO)
                     .sorted(Comparator.comparing(Agendamento::getHoraInicio))
                     .toList();
 
@@ -152,7 +152,8 @@ public class HorarioDisponivelService {
         for (Agendamento a : horario.getAgendamentos()) {
 
             if (a.getStatusAgendamento() == StatusAgendamento.AGENDADO ||
-                    a.getStatusAgendamento() == StatusAgendamento.CONFIRMADO) {
+                    a.getStatusAgendamento() == StatusAgendamento.CONFIRMADO ||
+                    a.getStatusAgendamento() == StatusAgendamento.REMARCADO) {
 
                 if (a.getHoraInicio().isBefore(request.getHoraInicio()) ||
                         a.getHoraFim().isAfter(request.getHoraFim())) {

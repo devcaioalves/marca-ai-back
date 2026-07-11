@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -32,6 +33,10 @@ public class Agendamento {
 
     @Column(nullable = false)
     private LocalTime horaFim; // persistido, calculado na camada de serviço no momento da criação
+
+    //Novo atributo
+    @Column(name = "data_envio_confirmacao")
+    private LocalDateTime dataEnvioConfirmacao;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente", nullable = false)

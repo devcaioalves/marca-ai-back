@@ -10,6 +10,7 @@ import com.marcaaiback.repository.AgendamentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -55,6 +56,12 @@ public class AgendamentoValidator {
         if (agendamento.getStatusAgendamento() == StatusAgendamento.CANCELADO ||
             agendamento.getStatusAgendamento() == StatusAgendamento.REALIZADO) {
             throw new OperacaoNaoPermitidaException("Agendamentos cancelados ou realizados não podem ser remarcados.");
+        }
+
+        LocalDateTime dataHoraAgendamento = LocalDateTime.of(agendamento.getData(), agendamento.getHoraInicio());
+
+        if(dataHoraAgendamento.isBefore(LocalDateTime.now())){
+            throw new OperacaoNaoPermitidaException("Não é possível remarcar um agendamento cujo horário já passou.");
         }
     }
 
@@ -113,5 +120,18 @@ public class AgendamentoValidator {
         if (!servico.isAtivo()) {
             throw new OperacaoNaoPermitidaException("Não é possível agendar um serviço desativado.");
         }
+    }
+
+    public StatusAgendamento definirStatusInicial(LocalDate data, LocalTime horaInicio) {
+        LocalDateTime dataHoraAgendamento = LocalDateTime.of(data, horaInicio);
+        LocalDateTime dataHoraAtual =  LocalDateTime.now();
+
+        long minutos = Duration.between(dataHoraAtual, dataHoraAgendamento).toMinutes();
+
+        if(minutos < 240){
+            return StatusAgendamento.CONFIRMADO;
+        }
+
+        return StatusAgendamento.AGENDADO;
     }
 }
