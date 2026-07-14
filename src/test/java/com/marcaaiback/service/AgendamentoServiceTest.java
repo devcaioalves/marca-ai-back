@@ -235,7 +235,7 @@ class AgendamentoServiceTest {
         doNothing().when(agendamentoValidator).validarServicoAtivo(any());
         when(agendamentoRepository.save(any())).thenReturn(agendamento);
 
-        AgendamentoResponse response = agendamentoService.remarcar(1L, 2L);
+        AgendamentoResponse response = agendamentoService.remarcar(1L, 2L, null);
 
         assertThat(response).isNotNull();
         verify(agendamentoRepository).save(any());
@@ -248,7 +248,7 @@ class AgendamentoServiceTest {
         doNothing().when(agendamentoValidator).validarRemarcacao(any());
         when(horarioRepository.buscarComLock(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> agendamentoService.remarcar(1L, 99L))
+        assertThatThrownBy(() -> agendamentoService.remarcar(1L, 99L, null))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Horário não encontrado");
     }

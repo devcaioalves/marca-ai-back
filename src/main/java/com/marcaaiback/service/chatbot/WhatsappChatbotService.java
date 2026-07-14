@@ -479,7 +479,7 @@ public class WhatsappChatbotService {
 
     private WhatsappWebhookResponse iniciarReagendamento(ConversaWhatsapp conversa) {
         List<AgendamentoResponse> agendamentos =
-                agendamentoService.listarReagendaveisPorCliente(conversa.getCliente().getId());
+                agendamentoService.listarReagendaveisECancelaveisPorCliente(conversa.getCliente().getId());
 
         if (agendamentos.isEmpty()) {
             conversa.setEstadoConversa(PERGUNTANDO_FINALIZAR);
@@ -494,7 +494,7 @@ public class WhatsappChatbotService {
 
     private WhatsappWebhookResponse tratarReagendandoEscolhendoAgendamento(ConversaWhatsapp conversa, String texto) {
         List<AgendamentoResponse> agendamentos =
-                agendamentoService.listarReagendaveisPorCliente(conversa.getCliente().getId());
+                agendamentoService.listarReagendaveisECancelaveisPorCliente(conversa.getCliente().getId());
 
         if (!validator.validarOpcao(texto, 1, agendamentos.size())) {
             return respostaInvalida(conversa,
@@ -630,7 +630,7 @@ public class WhatsappChatbotService {
                     "0 - Para cancelar");
         }
 
-        agendamentoService.remarcar(conversa.getAgendamentoId(), conversa.getHorarioId());
+        agendamentoService.remarcar(conversa.getAgendamentoId(), conversa.getHorarioId(), conversa.getHoraInicioEscolhida());
         limparDadosAgendamento(conversa);
         conversa.setEstadoConversa(PERGUNTANDO_FINALIZAR);
 
@@ -643,7 +643,7 @@ public class WhatsappChatbotService {
 
     private WhatsappWebhookResponse iniciarCancelamento(ConversaWhatsapp conversa) {
         List<AgendamentoResponse> agendamentos =
-                agendamentoService.listarPorCliente(conversa.getCliente().getId());
+                agendamentoService.listarReagendaveisECancelaveisPorCliente(conversa.getCliente().getId());
 
         if (agendamentos.isEmpty()) {
             conversa.setEstadoConversa(PERGUNTANDO_FINALIZAR);
@@ -658,7 +658,7 @@ public class WhatsappChatbotService {
 
     private WhatsappWebhookResponse tratarCancelandoEscolhendoAgendamento(ConversaWhatsapp conversa, String texto) {
         List<AgendamentoResponse> agendamentos =
-                agendamentoService.listarPorCliente(conversa.getCliente().getId());
+                agendamentoService.listarReagendaveisECancelaveisPorCliente(conversa.getCliente().getId());
 
         if (!validator.validarOpcao(texto, 1, agendamentos.size())) {
             return respostaInvalida(conversa,

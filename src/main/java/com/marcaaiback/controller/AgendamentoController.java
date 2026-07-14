@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -53,8 +54,8 @@ public class AgendamentoController {
     }
 
     @PatchMapping("/remarcar-agendamento/{id}/{novoHorarioId}")
-    public ResponseEntity<AgendamentoResponse> remarcar(@PathVariable Long id, @PathVariable Long novoHorarioId) {
-        return ResponseEntity.ok(agendamentoService.remarcar(id, novoHorarioId));
+    public ResponseEntity<AgendamentoResponse> remarcar(@PathVariable Long id, @PathVariable Long novoHorarioId, @RequestParam LocalTime horaInicio) {
+        return ResponseEntity.ok(agendamentoService.remarcar(id, novoHorarioId, horaInicio));
     }
 
     @PatchMapping("/confirmar-agendamento/{id}")
